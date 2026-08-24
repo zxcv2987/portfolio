@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = '프론트엔드 개발자 태양의 포트폴리오' } =
+	Astro.props;
+---
+
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+		<title>{title}</title>
+	</head>
+	<body class="flex min-h-dvh flex-col">
+		<header
+			class="border-b border-(--color-border-subtle) px-6 py-4 sm:px-8"
+		>
+			<div class="mx-auto w-full max-w-3xl flex justify-between items-center">
+				<a href="/" class="font-semibold no-underline">Taeyang</a>
+				<nav aria-label="주 메뉴">
+					<ul class="flex gap-5 text-sm list-none m-0 p-0">
+						<li><a href="/">Home</a></li>
+						<li><a href="/experience">Experience</a></li>
+					</ul>
+				</nav>
+			</div>
+		</header>
+
+		<main class="flex-1 px-6 py-12 sm:py-16 sm:px-8">
+			<div class="mx-auto w-full max-w-3xl">
+				<slot />
+			</div>
+		</main>
+
+		<footer class="border-t border-(--color-border-subtle) px-6 py-8 sm:px-8">
+			<div
+				class="mx-auto w-full max-w-3xl text-sm text-(--color-muted) flex justify-between items-center"
+			>
+				<p>&copy; {new Date().getFullYear()} Taeyang</p>
+				<a href="https://github.com" rel="noopener noreferrer">GitHub</a>
+			</div>
+		</footer>
+	</body>
+</html>
