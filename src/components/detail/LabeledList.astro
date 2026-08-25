@@ -1,0 +1,31 @@
+---
+interface Props {
+	label: string;
+	items: string[];
+	variant?: 'bullet' | 'pill';
+	class?: string;
+}
+
+const { label, items, variant = 'bullet', class: className } = Astro.props;
+---
+
+<div class:list={['first:mt-0', className]}>
+	<p class="m-0 text-sm font-medium text-muted">{label}</p>
+	{
+		variant === 'pill' ? (
+			<ul class="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
+				{items.map((item) => (
+					<li class="rounded-full border border-border-subtle px-3 py-0.5 text-xs leading-6 text-muted">
+						{item}
+					</li>
+				))}
+			</ul>
+		) : (
+			<ul class="m-0 mt-2 list-disc space-y-1 pl-5">
+				{items.map((item) => (
+					<li>{item}</li>
+				))}
+			</ul>
+		)
+	}
+</div>
