@@ -1,10 +1,61 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
 import SectionTitle from '../components/SectionTitle.astro';
 import Metric from '../components/Metric.astro';
 import MetricGroup from '../components/MetricGroup.astro';
 import { site } from '../config/site';
+import { getProfile } from '../lib/profile';
+
+const isUnconfirmed = (value?: string) => !value || value.includes('TODO');
+
+const profile = getProfile();
+
+const skillsMatch = /(?:^|\n)## 기술\s*\n([\s\S]*?)(?:\n## |\s*$)/.exec(profile.body);
+const skillGroups = [
+	...(skillsMatch?.[1]?.matchAll(/### (.+?)\s*\n([\s\S]*?)(?=### |$)/g) ?? []),
+].map((match) => ({
+	category: match[1].trim(),
+	items: match[2]
+		.split(/\r?\n|,/)
+		.map((item) => item.trim())
+		.filter(Boolean),
+}));
+
+const experienceEntries = (await getCollection('experience')).sort(
+	(a, b) => a.data.order - b.data.order,
+);
+const caseStudyEntries = (await getCollection('case-studies')).sort(
+	(a, b) => a.data.order - b.data.order,
+);
+const projectEntries = (await getCollection('projects')).sort(
+	(a, b) => a.data.order - b.data.order,
+);
+
+const featuredCaseStudies = caseStudyEntries.filter(
+	(entry) => entry.data.featured,
+);
+const featuredProjects = projectEntries.filter(
+	(entry) => entry.data.featured,
+);
+const otherProjects = projectEntries.filter(
+	(entry) => !entry.data.featured,
+);
+
+const caseStudiesByHref = new Map(
+	caseStudyEntries.map((entry) => [`/case-studies/${entry.data.slug}`, entry]),
+);
+
+const projectLinkLabels: Record<string, string> = {
+	service: '서비스',
+	repository: '저장소',
+	admin: '관리자 시스템',
+	frontend: '프론트엔드 저장소',
+	web_v1: '웹 v1',
+	web_v2: '웹 v2',
+	app: '앱',
+};
 ---
 
 <Layout title={`${site.nameEn} — ${site.role}`}>
@@ -18,16 +69,11 @@ import { site } from '../config/site';
 		</h1>
 		<Prose class="mt-6">
 			<p>{site.headline}</p>
-			<p class="text-muted">
-				관리자 시스템의 빌드 시간을 5~10분에서 약 30초로 단축했으며, 실제 사용자
-				환경에서 발생한 기기 판별 문제를 Sentry 데이터로 추적하고 여러 브라우저
-				신호를 조합해 해결했습니다.
-			</p>
 		</Prose>
 	</section>
 
-	<section aria-labelledby="highlights-heading" class="mt-16 sm:mt-20">
-		<SectionTitle id="highlights-heading">핵심 성과</SectionTitle>
+	<section aria-labelledby="metrics-heading" class="mt-16 sm:mt-20">
+		<SectionTitle id="metrics-heading">대표 수치</SectionTitle>
 		<MetricGroup class="mt-6">
 			<Metric
 				value="약 30초"
@@ -38,12 +84,194 @@ import { site } from '../config/site';
 		</MetricGroup>
 	</section>
 
-	<section aria-labelledby="sections-heading" class="mt-16 sm:mt-20">
-		<SectionTitle id="sections-heading">더 보기</SectionTitle>
-		<Prose class="mt-4">
-			<p class="text-muted">
-				경력과 상세 사례는 각 섹션에서 확인할 수 있습니다.
-			</p>
-		</Prose>
+	<section aria-labelledby="experience-heading" class="mt-16 sm:mt-20">
+		<SectionTitle id="experience-heading">회사 경력</SectionTitle>
+		<div class="mt-6 space-y-8">
+			{
+				experienceEntries.map((entry) => {
+					const meta = [
+						entry.data.role,
+						entry.data.employment_type,
+						isUnconfirmed(entry.data.period) ? undefined : entry.data.period,
+					]
+						.filter((part) => part !== undefined)
+						.join(' · ');
+					const relatedCaseStudies = (entry.data.case_studies ?? [])
+						.map((href) => caseStudiesByHref.get(href))
+						.filter((caseStudy) => caseStudy !== undefined);
+
+					return (
+						<article>
+							<h3 class="text-base font-bold tracking-tight sm:text-lg">
+								{entry.data.company}
+							</h3>
+							<p class="mt-1 text-sm text-muted">{meta}</p>
+							{relatedCaseStudies.length > 0 && (
+								<ul class="mt-3 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-sm">
+									{relatedCaseStudies.map((caseStudy) => (
+										<li>
+											<a
+												href={`/case-studies/${caseStudy.data.slug}`}
+												class="no-underline hover:underline"
+											>
+												{caseStudy.data.title}
+											</a>
+										</li>
+									))}
+								</ul>
+							)}
+						</article>
+					);
+				})
+			}
+		</div>
+	</section>
+
+	<section aria-labelledby="case-studies-heading" class="mt-16 sm:mt-20">
+		<SectionTitle id="case-studies-heading">대표 사례</SectionTitle>
+		<div class="mt-6 space-y-8">
+			{
+				featuredCaseStudies.map((entry) => {
+					const meta = [entry.data.company, entry.data.period]
+						.filter((part) => !isUnconfirmed(part))
+						.join(' · ');
+
+					return (
+						<article>
+							<h3 class="text-base font-bold tracking-tight sm:text-lg">
+								<a
+									href={`/case-studies/${entry.data.slug}`}
+									class="no-underline hover:underline"
+								>
+									{entry.data.title}
+								</a>
+							</h3>
+							{meta && <p class="mt-1 text-sm text-muted">{meta}</p>}
+							<Prose class="mt-2">
+								<p>{entry.data.summary}</p>
+							</Prose>
+						</article>
+					);
+				})
+			}
+		</div>
+	</section>
+
+	<section aria-labelledby="projects-heading" class="mt-16 sm:mt-20">
+		<SectionTitle id="projects-heading">대표 프로젝트</SectionTitle>
+		<div class="mt-6 space-y-8">
+			{
+				featuredProjects.map((entry) => {
+					const meta = [entry.data.category, entry.data.period]
+						.filter((part) => !isUnconfirmed(part))
+						.join(' · ');
+					const links = Object.entries(entry.data.links ?? {}).filter(
+						([, href]) => !isUnconfirmed(href),
+					);
+
+					return (
+						<article>
+							<h3 class="text-base font-bold tracking-tight sm:text-lg">
+								<a
+									href={`/projects/${entry.data.slug}`}
+									class="no-underline hover:underline"
+								>
+									{entry.data.title}
+								</a>
+							</h3>
+							{meta && <p class="mt-1 text-sm text-muted">{meta}</p>}
+							<Prose class="mt-2">
+								<p>{entry.data.summary}</p>
+							</Prose>
+							{links.length > 0 && (
+								<ul class="mt-3 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-sm">
+									{links.map(([key, href]) => (
+										<li>
+											<a
+												href={href}
+												rel="noopener noreferrer"
+												class="no-underline hover:underline"
+											>
+												{projectLinkLabels[key] ?? key}
+											</a>
+										</li>
+									))}
+								</ul>
+							)}
+						</article>
+					);
+				})
+			}
+		</div>
+	</section>
+
+	<section aria-labelledby="other-projects-heading" class="mt-16 sm:mt-20">
+		<SectionTitle id="other-projects-heading">기타 프로젝트</SectionTitle>
+		<ul class="mt-6 list-none divide-y divide-border-subtle p-0">
+			{
+				otherProjects.map((entry) => {
+					const meta = [entry.data.category, entry.data.period]
+						.filter((part) => !isUnconfirmed(part))
+						.join(' · ');
+
+					return (
+						<li class="py-5 first:pt-0 last:pb-0">
+							<h3 class="text-base font-bold tracking-tight">
+								<a
+									href={`/projects/${entry.data.slug}`}
+									class="no-underline hover:underline"
+								>
+									{entry.data.title}
+								</a>
+							</h3>
+							{meta && <p class="mt-1 text-sm text-muted">{meta}</p>}
+							<p class="mt-2 text-sm">{entry.data.summary}</p>
+						</li>
+					);
+				})
+			}
+		</ul>
+	</section>
+
+	<section aria-labelledby="skills-contact-heading" class="mt-16 sm:mt-20">
+		<SectionTitle id="skills-contact-heading">기술과 연락처</SectionTitle>
+		{
+			skillGroups.length > 0 && (
+				<div class="mt-6 grid gap-x-12 gap-y-8 sm:grid-cols-2">
+					{skillGroups.map((group) => (
+						<div>
+							<h3 class="text-base font-bold tracking-tight">
+								{group.category}
+							</h3>
+							<p class="mt-2 text-sm text-muted">{group.items.join(', ')}</p>
+						</div>
+					))}
+				</div>
+			)
+		}
+		<ul class="mt-10 flex list-none flex-wrap gap-x-6 gap-y-2 p-0 text-sm">
+			<li>
+				<a
+					href={`mailto:${site.email}`}
+					class="no-underline hover:underline"
+				>
+					{site.email}
+				</a>
+			</li>
+			<li>
+				<a
+					href={site.github}
+					rel="noopener noreferrer"
+					class="no-underline hover:underline"
+				>
+					GitHub
+				</a>
+			</li>
+			<li>
+				<a href={site.resumePath} class="no-underline hover:underline">
+					이력서 (PDF)
+				</a>
+			</li>
+		</ul>
 	</section>
 </Layout>
