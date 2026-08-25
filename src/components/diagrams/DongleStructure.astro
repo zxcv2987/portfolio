@@ -1,0 +1,100 @@
+---
+/**
+ * dongle.md "구조" 섹션의 모노레포 공용 패키지 구성과
+ * 사용자 앱 / 관리자 앱의 관계를 보여주는 구조 다이어그램.
+ */
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+
+interface App {
+	name: string;
+	description: string;
+}
+
+interface SharedPackage {
+	name: string;
+	note?: string;
+}
+
+const apps: App[] = [
+	{
+		name: '사용자 앱',
+		description: '학생용 동아리 탐색 서비스 · Next.js',
+	},
+	{
+		name: '관리자 앱',
+		description: '동아리 회장·중앙동아리연합회용 관리 시스템 · Next.js',
+	},
+];
+
+const sharedPackages: SharedPackage[] = [
+	{ name: 'API 요청과 인증 처리' },
+	{ name: '도메인 서비스' },
+	{ name: '공통 타입' },
+	{ name: 'UI 컴포넌트', note: 'Storybook으로 구현 상태와 사용 방식 확인' },
+	{ name: '날짜와 문자열 등의 공통 유틸리티' },
+];
+---
+
+<figure class:list={['m-0 w-full', className]}>
+	<div class="grid grid-cols-2 rounded-lg border border-border-subtle bg-background">
+		{
+			apps.map((app, i) => (
+				<div
+					class:list={[
+						'text-center',
+						i < apps.length - 1 && 'border-r border-border-subtle',
+					]}
+				>
+					<p class="px-3 pt-3.5 text-sm font-bold tracking-tight sm:px-4">
+						{app.name}
+					</p>
+					<p class="px-3 pb-3.5 pt-1 text-xs leading-relaxed text-muted sm:px-4">
+						{app.description}
+					</p>
+				</div>
+			))
+		}
+	</div>
+
+	<div class="relative h-10" aria-hidden="true">
+		<div class="absolute inset-x-1/4 top-0 h-1/2 border-x border-t border-border-subtle" />
+		<div
+			class="absolute top-1/2 left-1/2 h-1/2 w-px -translate-x-1/2 bg-border-subtle"
+		/>
+		<span
+			class="absolute bottom-[-2px] left-1/2 h-0 w-0 -translate-x-1/2 border-x-4 border-t-[5px] border-x-transparent border-t-muted"
+		/>
+	</div>
+
+	<div class="overflow-hidden rounded-lg border border-border-subtle bg-background">
+		<div
+			class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-border-subtle px-4 py-3"
+		>
+			<p class="text-sm font-bold tracking-tight">공용 패키지</p>
+			<p class="text-xs text-muted">Turborepo 모노레포</p>
+		</div>
+		<ul class="m-0 list-none divide-y divide-border-subtle p-0">
+			{
+				sharedPackages.map((pkg) => (
+					<li class="px-4 py-2.5 text-sm">
+						{pkg.name}
+						{pkg.note && (
+							<span class="block text-xs leading-relaxed text-muted">
+								{pkg.note}
+							</span>
+						)}
+					</li>
+				))
+			}
+		</ul>
+	</div>
+
+	<figcaption class="mt-3 text-sm leading-relaxed text-muted">
+		사용자 앱과 관리자 앱 사이의 중복 구현을 줄이고 변경 규칙을 일관되게 관리하기 위해
+		Turborepo 기반 모노레포로 구성했습니다.
+	</figcaption>
+</figure>
