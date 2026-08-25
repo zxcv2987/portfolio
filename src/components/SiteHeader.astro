@@ -1,0 +1,45 @@
+---
+import { navItems, site } from '../config/site';
+
+const currentPath =
+	Astro.url.pathname !== '/' && Astro.url.pathname.endsWith('/')
+		? Astro.url.pathname.slice(0, -1)
+		: Astro.url.pathname;
+
+const isActive = (href: string) =>
+	href === '/'
+		? currentPath === '/'
+		: currentPath === href || currentPath.startsWith(`${href}/`);
+---
+
+<header class="border-b border-border-subtle">
+	<div
+		class="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-4 sm:px-8"
+	>
+		<a href="/" class="font-semibold no-underline">{site.nameEn}</a>
+		<nav aria-label="주요 메뉴">
+			<ul
+				class="m-0 flex list-none flex-wrap gap-x-5 gap-y-1 p-0 text-sm"
+			>
+				{
+					navItems.map((item) => (
+						<li>
+							<a
+								href={item.href}
+								aria-current={isActive(item.href) ? 'page' : undefined}
+								class:list={[
+									'no-underline transition-colors',
+									isActive(item.href)
+										? 'font-semibold text-foreground'
+										: 'text-muted hover:text-foreground',
+								]}
+							>
+								{item.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+	</div>
+</header>

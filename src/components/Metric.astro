@@ -1,0 +1,21 @@
+---
+interface Props {
+	value: string;
+	label: string;
+	context?: string;
+}
+
+const { value, label, context } = Astro.props;
+---
+
+<div class="flex flex-col">
+	<dt class="order-2 mt-2 text-sm text-muted">
+		{label}
+		{context && <span class="before:mx-1.5 before:content-['·']">{context}</span>}
+	</dt>
+	<dd
+		class="order-1 m-0 text-4xl font-bold tracking-tight tabular-nums sm:text-5xl"
+	>
+		{value}
+	</dd>
+</div>
