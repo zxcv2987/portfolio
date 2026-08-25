@@ -5,31 +5,51 @@ import DetailSection from '../../components/detail/DetailSection.astro';
 import MetaList from '../../components/detail/MetaList.astro';
 import LabeledList from '../../components/detail/LabeledList.astro';
 import RelatedLinks from '../../components/detail/RelatedLinks.astro';
+import PrevNextNav from '../../components/detail/PrevNextNav.astro';
 import ArticleBody from '../../components/detail/ArticleBody.astro';
+import DongleStructure from '../../components/diagrams/DongleStructure.astro';
 import {
 	isUnconfirmed,
 	linkItemsFromRecord,
 	pickMeta,
+	type LinkItem,
 	type MetaItem,
 } from '../../lib/detail';
 import { site } from '../../config/site';
 
 export async function getStaticPaths() {
-	const entries = await getCollection('projects');
+	const entries = (await getCollection('projects')).sort(
+		(a, b) => a.data.order - b.data.order,
+	);
 
-	return entries.map((entry) => ({
-		params: { slug: entry.data.slug || entry.id },
-		props: { entry },
-	}));
+	return entries.map((entry, index) => {
+		const toLink = (item: (typeof entries)[number]): LinkItem => ({
+			href: `/projects/${item.data.slug || item.id}`,
+			label: item.data.title,
+		});
+
+		return {
+			params: { slug: entry.data.slug || entry.id },
+			props: {
+				entry,
+				prev: index > 0 ? toLink(entries[index - 1]!) : undefined,
+				next:
+					index < entries.length - 1 ? toLink(entries[index + 1]!) : undefined,
+			},
+		};
+	});
 }
 
 interface Props {
 	entry: CollectionEntry<'projects'>;
+	prev?: LinkItem;
+	next?: LinkItem;
 }
 
-const { entry } = Astro.props;
+const { entry, prev, next } = Astro.props;
 const { Content } = await render(entry);
 const data = entry.data;
+const slug = data.slug || entry.id;
 
 const meta: MetaItem[] = [
 	pickMeta('분류', data.category),
@@ -67,9 +87,19 @@ const relatedLinks = data.links ? linkItemsFromRecord(data.links) : [];
 		</div>
 	</DetailSection>
 
+	{
+		slug === 'dongle' && (
+			<DetailSection id="structure-diagram" title="서비스 구조">
+				<DongleStructure />
+			</DetailSection>
+		)
+	}
+
 	<ArticleBody class="mt-16 sm:mt-20">
 		<Content />
 	</ArticleBody>
+
+	<PrevNextNav prev={prev} next={next} />
 
 	{
 		relatedLinks.length > 0 && (

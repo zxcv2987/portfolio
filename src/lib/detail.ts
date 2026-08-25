@@ -12,6 +12,12 @@ export interface LinkItem {
 const LINK_LABELS: Record<string, string> = {
 	service: '서비스',
 	repository: '저장소',
+	admin: '관리자 시스템',
+	frontend: '프론트엔드 저장소',
+	backend: '백엔드 저장소',
+	web_v1: '웹 v1',
+	web_v2: '웹 v2',
+	app: '앱',
 };
 
 /**

@@ -4,6 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 import DetailSection from '../../components/detail/DetailSection.astro';
 import MetaList from '../../components/detail/MetaList.astro';
 import RelatedLinks from '../../components/detail/RelatedLinks.astro';
+import PrevNextNav from '../../components/detail/PrevNextNav.astro';
 import ArticleBody from '../../components/detail/ArticleBody.astro';
 import {
 	pickMeta,
@@ -13,10 +14,12 @@ import {
 import { site } from '../../config/site';
 
 export async function getStaticPaths() {
-	const entries = await getCollection('experience');
+	const entries = (await getCollection('experience')).sort(
+		(a, b) => a.data.order - b.data.order,
+	);
 	const cases = await getCollection('case-studies');
 
-	return entries.map((entry) => {
+	return entries.map((entry, index) => {
 		const relatedCases: LinkItem[] = (entry.data.case_studies ?? [])
 			.map((href) => {
 				const slug = href.split('/').filter(Boolean).pop();
@@ -25,16 +28,32 @@ export async function getStaticPaths() {
 			})
 			.filter((item): item is LinkItem => item !== null);
 
-		return { params: { slug: entry.id }, props: { entry, relatedCases } };
+		const toLink = (item: (typeof entries)[number]): LinkItem => ({
+			href: `/experience/${item.id}`,
+			label: item.data.company,
+		});
+
+		return {
+			params: { slug: entry.id },
+			props: {
+				entry,
+				relatedCases,
+				prev: index > 0 ? toLink(entries[index - 1]!) : undefined,
+				next:
+					index < entries.length - 1 ? toLink(entries[index + 1]!) : undefined,
+			},
+		};
 	});
 }
 
 interface Props {
 	entry: CollectionEntry<'experience'>;
 	relatedCases: LinkItem[];
+	prev?: LinkItem;
+	next?: LinkItem;
 }
 
-const { entry, relatedCases } = Astro.props;
+const { entry, relatedCases, prev, next } = Astro.props;
 const { Content } = await render(entry);
 const data = entry.data;
 
@@ -63,6 +82,8 @@ const pageTitle = `${data.company} ${data.role}`;
 	<ArticleBody class="mt-16 sm:mt-20">
 		<Content />
 	</ArticleBody>
+
+	<PrevNextNav prev={prev} next={next} />
 
 	{
 		relatedCases.length > 0 && (
