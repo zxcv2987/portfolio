@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Prose from '../../components/Prose.astro';
+import { site } from '../../config/site';
+import { isUnconfirmed } from '../../lib/detail';
+
+const entries = (await getCollection('case-studies')).sort(
+	(a, b) => a.data.order - b.data.order,
+);
+---
+
+<Layout title={`Case Studies — ${site.name}`}>
+	<header>
+		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
+			Case Studies
+		</h1>
+	</header>
+
+	<div class="mt-10 space-y-10">
+		{
+			entries.map((entry) => {
+				const meta = [entry.data.company, entry.data.period]
+					.filter((part) => !isUnconfirmed(part))
+					.join(' · ');
+
+				return (
+					<article>
+						<h2 class="text-lg font-bold tracking-tight">
+							<a
+								href={`/case-studies/${entry.data.slug}`}
+								class="no-underline hover:underline"
+							>
+								{entry.data.title}
+							</a>
+						</h2>
+						{meta && <p class="mt-1 text-sm text-muted">{meta}</p>}
+						<Prose class="mt-2">
+							<p>{entry.data.summary}</p>
+						</Prose>
+					</article>
+				);
+			})
+		}
+	</div>
+</Layout>

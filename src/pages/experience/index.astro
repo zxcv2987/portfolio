@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { site } from '../../config/site';
+import { isUnconfirmed } from '../../lib/detail';
+
+const entries = (await getCollection('experience')).sort(
+	(a, b) => a.data.order - b.data.order,
+);
+const caseStudiesByHref = new Map(
+	(await getCollection('case-studies')).map((entry) => [
+		`/case-studies/${entry.data.slug}`,
+		entry,
+	]),
+);
+---
+
+<Layout title={`Experience — ${site.name}`}>
+	<header>
+		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Experience</h1>
+	</header>
+
+	<div class="mt-10 space-y-10">
+		{
+			entries.map((entry) => {
+				const meta = [
+					entry.data.role,
+					entry.data.employment_type,
+					isUnconfirmed(entry.data.period) ? undefined : entry.data.period,
+				]
+					.filter((part) => part !== undefined)
+					.join(' · ');
+				const relatedCaseStudies = (entry.data.case_studies ?? [])
+					.map((href) => caseStudiesByHref.get(href))
+					.filter((caseStudy) => caseStudy !== undefined);
+
+				return (
+					<article>
+						<h2 class="text-lg font-bold tracking-tight">
+							{entry.data.company}
+						</h2>
+						<p class="mt-1 text-sm text-muted">{meta}</p>
+						{relatedCaseStudies.length > 0 && (
+							<ul class="mt-3 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-sm">
+								{relatedCaseStudies.map((caseStudy) => (
+									<li>
+										<a
+											href={`/case-studies/${caseStudy.data.slug}`}
+											class="no-underline hover:underline"
+										>
+											{caseStudy.data.title}
+										</a>
+									</li>
+								))}
+							</ul>
+						)}
+					</article>
+				);
+			})
+		}
+	</div>
+</Layout>
