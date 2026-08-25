@@ -1,0 +1,50 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { site } from '../config/site';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const {
+	title,
+	description = `${site.name} (${site.role}) 포트폴리오 — ${site.headline}`,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="ko">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<title>{title}</title>
+	</head>
+	<body class="flex min-h-dvh flex-col">
+		<a
+			href="#main-content"
+			class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-background focus:px-3 focus:py-2 focus:text-sm focus:no-underline"
+		>
+			본문으로 건너뛰기
+		</a>
+		<SiteHeader />
+		<main
+			id="main-content"
+			tabindex="-1"
+			class="flex-1 px-6 py-12 focus:outline-none sm:px-8 sm:py-16"
+		>
+			<div class="mx-auto w-full max-w-3xl">
+				<slot />
+			</div>
+		</main>
+		<SiteFooter />
+	</body>
+</html>

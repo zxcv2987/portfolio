@@ -1,0 +1,20 @@
+---
+interface Props {
+	id?: string;
+	level?: 2 | 3;
+	class?: string;
+}
+
+const { id, level = 2, class: className } = Astro.props;
+
+const Tag = `h${level}` as 'h2' | 'h3';
+
+const styles =
+	level === 2
+		? 'border-b border-border-subtle pb-3 text-xl font-bold tracking-tight sm:text-2xl'
+		: 'text-base font-bold tracking-tight sm:text-lg';
+---
+
+<Tag id={id} class:list={[styles, className]}>
+	<slot />
+</Tag>

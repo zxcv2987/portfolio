@@ -1,0 +1,38 @@
+---
+import { site } from '../config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-border-subtle">
+	<div class="mx-auto w-full max-w-3xl px-6 py-10 sm:px-8">
+		<h2 class="text-sm font-bold">Contact</h2>
+		<ul class="mt-3 flex list-none flex-wrap gap-x-6 gap-y-2 p-0 text-sm">
+			<li>
+				<a
+					href={`mailto:${site.email}`}
+					class="no-underline hover:underline"
+				>
+					{site.email}
+				</a>
+			</li>
+			<li>
+				<a
+					href={site.github}
+					rel="noopener noreferrer"
+					class="no-underline hover:underline"
+				>
+					GitHub 프로필
+				</a>
+			</li>
+			<li>
+				<a href={site.resumePath} class="no-underline hover:underline">
+					이력서 (PDF)
+				</a>
+			</li>
+		</ul>
+		<p class="mt-8 text-xs text-muted">
+			&copy; {year} {site.nameEn} ({site.name})
+		</p>
+	</div>
+</footer>
