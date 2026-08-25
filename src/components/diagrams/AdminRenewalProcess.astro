@@ -1,0 +1,81 @@
+---
+/**
+ * admin-renewal.md "구현" 섹션의 4단계를 보여주는 프로세스 다이어그램.
+ * 1. 빌드와 라우팅 체계 전환
+ * 2. 데이터 계층 정리
+ * 3. 반복 UI 패턴 표준화
+ * 4. 운영 흐름을 반영한 기능 개선
+ */
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+
+interface Step {
+	title: string;
+	points: string[];
+}
+
+const steps: Step[] = [
+	{
+		title: '빌드와 라우팅 체계 전환',
+		points: [
+			'Vite, React 19, TanStack Router 기반으로 애플리케이션 재구성',
+			'TanStack Router의 beforeLoad로 인증과 권한을 확인하는 레이아웃 정의',
+			'각 화면 내부에 흩어져 있던 접근 제어 분기를 라우팅 계층으로 이동',
+		],
+	},
+	{
+		title: '데이터 계층 정리',
+		points: [
+			'도메인과 기능을 기준으로 타입, 서비스, 훅, 애플리케이션 책임 분리',
+			'공통 Axios 인스턴스 · 전역 오류 처리 · TanStack Query 캐시 정책 구성',
+			'도메인 타입, API 서비스, 화면용 데이터 훅으로 경계를 정리해 화면 컴포넌트가 API 세부 구현을 직접 알지 않도록 분리',
+		],
+	},
+	{
+		title: '반복 UI 패턴 표준화',
+		points: [
+			'반복적으로 사용하는 테이블, 필터, 폼 구성을 공통 훅과 컴포넌트로 설계',
+			'공용 컴포넌트는 Storybook에서 상태와 사용 방식을 확인할 수 있도록 구성',
+			'일부 도메인 기능의 순수 함수에 Vitest 기반 단위 테스트 작성',
+		],
+	},
+	{
+		title: '운영 흐름을 반영한 기능 개선',
+		points: [
+			'드래그 앤 드롭 · 테이블 표시 항목 조정 · SMS 재발송 · 문의 답변 템플릿',
+			'운영 과정에서 반복되는 작업을 줄이는 방향을 함께 고려',
+		],
+	},
+];
+---
+
+<div class:list={['w-full', className]}>
+	<ol class:list={['m-0 list-none space-y-10 p-0']}>
+		{
+			steps.map((step, i) => (
+				<li class="relative flex gap-4 sm:gap-6">
+					{i < steps.length - 1 && (
+						<span
+							aria-hidden="true"
+							class="absolute top-8 -bottom-10 left-4 w-px bg-border-subtle"
+						/>
+					)}
+					<span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-border-subtle bg-background text-sm font-semibold tabular-nums text-muted">
+						{i + 1}
+					</span>
+					<div class="min-w-0 pt-0.5">
+						<h3 class="text-base font-bold tracking-tight">{step.title}</h3>
+						<ul class="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted marker:text-border-subtle">
+							{step.points.map((point) => (
+								<li>{point}</li>
+							))}
+						</ul>
+					</div>
+				</li>
+			))
+		}
+	</ol>
+</div>
