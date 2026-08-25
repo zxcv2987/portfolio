@@ -5,7 +5,10 @@ import DetailSection from '../../components/detail/DetailSection.astro';
 import MetaList from '../../components/detail/MetaList.astro';
 import LabeledList from '../../components/detail/LabeledList.astro';
 import RelatedLinks from '../../components/detail/RelatedLinks.astro';
+import PrevNextNav from '../../components/detail/PrevNextNav.astro';
 import ArticleBody from '../../components/detail/ArticleBody.astro';
+import AdminRenewalProcess from '../../components/diagrams/AdminRenewalProcess.astro';
+import DeviceDetectionFlow from '../../components/diagrams/DeviceDetectionFlow.astro';
 import {
 	isUnconfirmed,
 	pickMeta,
@@ -15,14 +18,20 @@ import {
 import { site } from '../../config/site';
 
 export async function getStaticPaths() {
-	const entries = await getCollection('case-studies');
+	const entries = (await getCollection('case-studies')).sort(
+		(a, b) => a.data.order - b.data.order,
+	);
 	const experiences = await getCollection('experience');
 
-	return entries.map((entry) => {
+	return entries.map((entry, index) => {
 		const slug = entry.data.slug || entry.id;
 		const parent = experiences.find((item) =>
 			(item.data.case_studies ?? []).includes(`/case-studies/${slug}`),
 		);
+		const toLink = (item: (typeof entries)[number]) => ({
+			href: `/case-studies/${item.data.slug || item.id}`,
+			label: item.data.title,
+		});
 
 		return {
 			params: { slug },
@@ -31,6 +40,9 @@ export async function getStaticPaths() {
 				parentLink: parent
 					? { href: `/experience/${parent.id}`, label: `소속 경력 — ${parent.data.company}` }
 					: null,
+				prev: index > 0 ? toLink(entries[index - 1]!) : undefined,
+				next:
+					index < entries.length - 1 ? toLink(entries[index + 1]!) : undefined,
 			},
 		};
 	});
@@ -39,11 +51,14 @@ export async function getStaticPaths() {
 interface Props {
 	entry: CollectionEntry<'case-studies'>;
 	parentLink: LinkItem | null;
+	prev?: LinkItem;
+	next?: LinkItem;
 }
 
-const { entry, parentLink } = Astro.props;
+const { entry, parentLink, prev, next } = Astro.props;
 const { Content } = await render(entry);
 const data = entry.data;
+const slug = data.slug || entry.id;
 
 const meta: MetaItem[] = [
 	pickMeta('분류', data.category),
@@ -80,9 +95,26 @@ const relatedLinks: LinkItem[] = parentLink ? [parentLink] : [];
 		</div>
 	</DetailSection>
 
+	{
+		slug === 'admin-renewal' && (
+			<DetailSection id="process-diagram" title="구현 과정">
+				<AdminRenewalProcess />
+			</DetailSection>
+		)
+	}
+	{
+		slug === 'device-detection' && (
+			<DetailSection id="detection-flow" title="판별 과정">
+				<DeviceDetectionFlow />
+			</DetailSection>
+		)
+	}
+
 	<ArticleBody class="mt-16 sm:mt-20">
 		<Content />
 	</ArticleBody>
+
+	<PrevNextNav prev={prev} next={next} />
 
 	{
 		relatedLinks.length > 0 && (

@@ -1,0 +1,40 @@
+---
+interface PageLink {
+	href: string;
+	label: string;
+}
+
+interface Props {
+	prev?: PageLink;
+	next?: PageLink;
+}
+
+const { prev, next } = Astro.props;
+---
+
+{
+	(prev || next) && (
+		<nav
+			aria-label="같은 목록의 이전·다음 항목"
+			class="mt-16 border-t border-border-subtle pt-6 text-sm sm:mt-20 sm:flex sm:justify-between sm:gap-8"
+		>
+			{prev ? (
+				<a href={prev.href} class="no-underline hover:underline">
+					<span aria-hidden="true" class="text-muted">← </span>
+					{prev.label}
+				</a>
+			) : (
+				<span aria-hidden="true" />
+			)}
+			{next && (
+				<a
+					href={next.href}
+					class:list={['no-underline hover:underline', prev && 'sm:text-right']}
+				>
+					{next.label}
+					<span aria-hidden="true" class="text-muted"> →</span>
+				</a>
+			)}
+		</nav>
+	)
+}
