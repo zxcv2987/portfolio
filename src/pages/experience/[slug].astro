@@ -1,0 +1,74 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import DetailSection from '../../components/detail/DetailSection.astro';
+import MetaList from '../../components/detail/MetaList.astro';
+import RelatedLinks from '../../components/detail/RelatedLinks.astro';
+import ArticleBody from '../../components/detail/ArticleBody.astro';
+import {
+	pickMeta,
+	type LinkItem,
+	type MetaItem,
+} from '../../lib/detail';
+import { site } from '../../config/site';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('experience');
+	const cases = await getCollection('case-studies');
+
+	return entries.map((entry) => {
+		const relatedCases: LinkItem[] = (entry.data.case_studies ?? [])
+			.map((href) => {
+				const slug = href.split('/').filter(Boolean).pop();
+				const found = cases.find((item) => item.data.slug === slug);
+				return found ? { href, label: found.data.title } : null;
+			})
+			.filter((item): item is LinkItem => item !== null);
+
+		return { params: { slug: entry.id }, props: { entry, relatedCases } };
+	});
+}
+
+interface Props {
+	entry: CollectionEntry<'experience'>;
+	relatedCases: LinkItem[];
+}
+
+const { entry, relatedCases } = Astro.props;
+const { Content } = await render(entry);
+const data = entry.data;
+
+const meta: MetaItem[] = [
+	pickMeta('회사', data.company),
+	pickMeta('역할', data.role),
+	pickMeta('근무 형태', data.employment_type),
+	pickMeta('기간', data.period),
+].filter((item): item is MetaItem => item !== null);
+
+const pageTitle = `${data.company} ${data.role}`;
+---
+
+<Layout title={`${pageTitle} — ${site.name}`} description={`${data.company} — ${data.role}`}>
+	<header>
+		<p class="m-0 text-sm font-medium text-muted">Experience</p>
+		<h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+			{data.company}
+		</h1>
+	</header>
+
+	<DetailSection id="overview" title="한눈에 보기">
+		<MetaList items={meta} />
+	</DetailSection>
+
+	<ArticleBody class="mt-16 sm:mt-20">
+		<Content />
+	</ArticleBody>
+
+	{
+		relatedCases.length > 0 && (
+			<DetailSection id="links" title="관련 링크">
+				<RelatedLinks items={relatedCases} />
+			</DetailSection>
+		)
+	}
+</Layout>

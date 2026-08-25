@@ -1,0 +1,94 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import DetailSection from '../../components/detail/DetailSection.astro';
+import MetaList from '../../components/detail/MetaList.astro';
+import LabeledList from '../../components/detail/LabeledList.astro';
+import RelatedLinks from '../../components/detail/RelatedLinks.astro';
+import ArticleBody from '../../components/detail/ArticleBody.astro';
+import {
+	isUnconfirmed,
+	pickMeta,
+	type LinkItem,
+	type MetaItem,
+} from '../../lib/detail';
+import { site } from '../../config/site';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('case-studies');
+	const experiences = await getCollection('experience');
+
+	return entries.map((entry) => {
+		const slug = entry.data.slug || entry.id;
+		const parent = experiences.find((item) =>
+			(item.data.case_studies ?? []).includes(`/case-studies/${slug}`),
+		);
+
+		return {
+			params: { slug },
+			props: {
+				entry,
+				parentLink: parent
+					? { href: `/experience/${parent.id}`, label: `소속 경력 — ${parent.data.company}` }
+					: null,
+			},
+		};
+	});
+}
+
+interface Props {
+	entry: CollectionEntry<'case-studies'>;
+	parentLink: LinkItem | null;
+}
+
+const { entry, parentLink } = Astro.props;
+const { Content } = await render(entry);
+const data = entry.data;
+
+const meta: MetaItem[] = [
+	pickMeta('분류', data.category),
+	pickMeta('회사', data.company),
+	pickMeta('기간', data.period),
+	pickMeta('역할', data.role),
+].filter((item): item is MetaItem => item !== null);
+
+const relatedLinks: LinkItem[] = parentLink ? [parentLink] : [];
+---
+
+<Layout title={`${data.title} — ${site.name}`} description={isUnconfirmed(data.summary) ? undefined : data.summary}>
+	<header>
+		<p class="m-0 text-sm font-medium text-muted">Case Studies</p>
+		<h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+			{data.title}
+		</h1>
+	</header>
+
+	<DetailSection id="overview" title="한눈에 보기">
+		<div class="space-y-6">
+			<MetaList items={meta} />
+			{
+				!isUnconfirmed(data.summary) && (
+					<p class="m-0 text-base leading-relaxed">{data.summary}</p>
+				)
+			}
+			{data.highlights.length > 0 && (
+				<LabeledList label="하이라이트" items={data.highlights} />
+			)}
+			{data.tech.length > 0 && (
+				<LabeledList label="기술 스택" items={data.tech} variant="pill" />
+			)}
+		</div>
+	</DetailSection>
+
+	<ArticleBody class="mt-16 sm:mt-20">
+		<Content />
+	</ArticleBody>
+
+	{
+		relatedLinks.length > 0 && (
+			<DetailSection id="links" title="관련 링크">
+				<RelatedLinks items={relatedLinks} />
+			</DetailSection>
+		)
+	}
+</Layout>
