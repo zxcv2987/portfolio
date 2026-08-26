@@ -52,3 +52,28 @@ export function linkItemsFromRecord(record: Record<string, string>): LinkItem[] 
 			external: isExternal(href),
 		}));
 }
+
+/**
+ * 실제 운영 중인 서비스인지 판별한다: 기간이 "현재"까지 이어지고 실제 서비스
+ * 링크(links.service)가 확정되어 있는 경우만 해당한다. 하드코딩된 프로젝트
+ * 목록이 아니라 데이터로만 판단하므로, 다른 프로젝트가 조건을 만족하면
+ * 자동으로 함께 표시된다.
+ */
+export function isLiveService(data: {
+	period?: string;
+	links?: Record<string, string>;
+}): boolean {
+	return (
+		!isUnconfirmed(data.period) &&
+		!!data.period?.includes('현재') &&
+		!isUnconfirmed(data.links?.service)
+	);
+}
+
+/** links 레코드에서 실제 서비스 링크만 확정된 경우에 한해 꺼낸다. */
+export function serviceLink(data: {
+	links?: Record<string, string>;
+}): string | null {
+	const href = data.links?.service;
+	return isUnconfirmed(href) ? null : (href as string);
+}

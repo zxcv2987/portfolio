@@ -2,7 +2,7 @@
 name: "강태양"
 english_name: "Taeyang Kang"
 role: "Frontend Engineer"
-headline: "운영 과정에서 발견한 문제를 구조적으로 해결해 서비스 안정성과 개발 생산성을 높이는 프론트엔드 개발자"
+headline: "서비스 운영 흐름을 이해하고 구조적 판단으로 안정성과 생산성을 함께 개선하는 프론트엔드 개발자"
 email: "z62314386@gmail.com"
 github: "https://github.com/zxcv2987"
 resume_path: "/resume.pdf"

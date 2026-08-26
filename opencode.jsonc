@@ -1,0 +1,25 @@
+{
+  // OpenRouter free-tier models used by Orca orchestration workers.
+  // reasoning.effort:"high" is the maximum level OpenRouter's unified
+  // reasoning param exposes ("thinking max" per user request).
+  // "model" is the default model opencode launches with when no --model
+  // flag is given (Orca worker-start doesn't support --model for opencode).
+  "$schema": "https://opencode.ai/config.json",
+  "model": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
+  "provider": {
+    "openrouter": {
+      "models": {
+        "stealth/ox-alpha": {
+          "options": {
+            "reasoning": { "effort": "high" }
+          }
+        },
+        "nvidia/nemotron-3-ultra-550b-a55b:free": {
+          "options": {
+            "reasoning": { "effort": "high" }
+          }
+        }
+      }
+    }
+  }
+}

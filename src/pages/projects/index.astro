@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import Prose from '../../components/Prose.astro';
 import { site } from '../../config/site';
-import { isUnconfirmed, linkItemsFromRecord } from '../../lib/detail';
+import { isLiveService, isUnconfirmed, linkItemsFromRecord } from '../../lib/detail';
 
 const entries = (await getCollection('projects')).sort(
 	(a, b) => a.data.order - b.data.order,
@@ -14,7 +14,7 @@ const entries = (await getCollection('projects')).sort(
 	<header>
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Projects</h1>
 		<p class="mt-3 text-sm text-muted">
-			팀 프로젝트와 개인 프로젝트를 함께 정리했습니다 (총 {entries.length}건).
+			팀 프로젝트와 개인 프로젝트를 함께 정리했습니다.
 		</p>
 	</header>
 
@@ -37,6 +37,11 @@ const entries = (await getCollection('projects')).sort(
 							>
 								{entry.data.title}
 							</a>
+							{isLiveService(entry.data) && (
+								<span class="ml-2 rounded-full border border-border-subtle px-2 py-0.5 align-middle text-xs font-medium text-muted">
+									운영 중
+								</span>
+							)}
 						</h2>
 						{meta && <p class="mt-1 text-sm text-muted">{meta}</p>}
 						<Prose class="mt-2">

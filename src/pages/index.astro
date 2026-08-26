@@ -7,7 +7,7 @@ import Metric from '../components/Metric.astro';
 import MetricGroup from '../components/MetricGroup.astro';
 import { site } from '../config/site';
 import { getProfile } from '../lib/profile';
-import { linkItemsFromRecord } from '../lib/detail';
+import { isLiveService, linkItemsFromRecord } from '../lib/detail';
 
 const isUnconfirmed = (value?: string) => !value || value.includes('TODO');
 
@@ -169,6 +169,11 @@ const caseStudiesByHref = new Map(
 								>
 									{entry.data.title}
 								</a>
+								{isLiveService(entry.data) && (
+									<span class="ml-2 rounded-full border border-border-subtle px-2 py-0.5 align-middle text-xs font-medium text-muted">
+										운영 중
+									</span>
+								)}
 							</h3>
 							{meta && <p class="mt-1 text-sm text-muted">{meta}</p>}
 							<Prose class="mt-2">
@@ -215,6 +220,11 @@ const caseStudiesByHref = new Map(
 								>
 									{entry.data.title}
 								</a>
+								{isLiveService(entry.data) && (
+									<span class="ml-2 rounded-full border border-border-subtle px-2 py-0.5 align-middle text-xs font-medium text-muted">
+										운영 중
+									</span>
+								)}
 							</h3>
 							{meta && <p class="mt-1 text-sm text-muted">{meta}</p>}
 							<p class="mt-2 text-sm">{entry.data.summary}</p>

@@ -10,9 +10,11 @@ import ArticleBody from '../../components/detail/ArticleBody.astro';
 import TableOfContents from '../../components/detail/TableOfContents.astro';
 import DongleStructure from '../../components/diagrams/DongleStructure.astro';
 import {
+	isLiveService,
 	isUnconfirmed,
 	linkItemsFromRecord,
 	pickMeta,
+	serviceLink,
 	type LinkItem,
 	type MetaItem,
 } from '../../lib/detail';
@@ -60,7 +62,16 @@ const meta: MetaItem[] = [
 	pickMeta('담당 범위', data.contribution),
 ].filter((item): item is MetaItem => item !== null);
 
-const relatedLinks = data.links ? linkItemsFromRecord(data.links) : [];
+const showLiveService = isLiveService(data);
+const primaryServiceHref = showLiveService ? serviceLink(data) : null;
+const remainingLinks = data.links
+	? Object.fromEntries(
+			Object.entries(data.links).filter(
+				([key]) => !(showLiveService && key === 'service'),
+			),
+		)
+	: {};
+const relatedLinks = linkItemsFromRecord(remainingLinks);
 ---
 
 <Layout title={`${data.title} — ${site.name}`} description={isUnconfirmed(data.summary) ? undefined : data.summary}>
@@ -68,6 +79,11 @@ const relatedLinks = data.links ? linkItemsFromRecord(data.links) : [];
 		<p class="m-0 text-sm font-medium text-muted">Projects</p>
 		<h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
 			{data.title}
+			{showLiveService && (
+				<span class="ml-2 align-middle rounded-full border border-border-subtle px-2 py-0.5 text-xs font-medium text-muted">
+					운영 중
+				</span>
+			)}
 		</h1>
 	</header>
 
@@ -77,6 +93,20 @@ const relatedLinks = data.links ? linkItemsFromRecord(data.links) : [];
 			{
 				!isUnconfirmed(data.summary) && (
 					<p class="m-0 text-base leading-relaxed">{data.summary}</p>
+				)
+			}
+			{
+				primaryServiceHref && (
+					<p class="m-0">
+						<a
+							href={primaryServiceHref}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="font-medium no-underline hover:underline"
+						>
+							지금 서비스 사용해보기 <span aria-hidden="true">→</span>
+						</a>
+					</p>
 				)
 			}
 			{data.highlights.length > 0 && (
