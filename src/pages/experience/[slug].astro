@@ -6,6 +6,7 @@ import MetaList from '../../components/detail/MetaList.astro';
 import RelatedLinks from '../../components/detail/RelatedLinks.astro';
 import PrevNextNav from '../../components/detail/PrevNextNav.astro';
 import ArticleBody from '../../components/detail/ArticleBody.astro';
+import TableOfContents from '../../components/detail/TableOfContents.astro';
 import {
 	pickMeta,
 	type LinkItem,
@@ -54,7 +55,7 @@ interface Props {
 }
 
 const { entry, relatedCases, prev, next } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const data = entry.data;
 
 const meta: MetaItem[] = [
@@ -75,9 +76,11 @@ const pageTitle = `${data.company} ${data.role}`;
 		</h1>
 	</header>
 
-	<DetailSection id="overview" title="한눈에 보기">
+	<DetailSection id="overview" title="요약">
 		<MetaList items={meta} />
 	</DetailSection>
+
+	<TableOfContents headings={headings} />
 
 	<ArticleBody class="mt-16 sm:mt-20">
 		<Content />
