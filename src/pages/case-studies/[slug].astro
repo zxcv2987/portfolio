@@ -80,7 +80,7 @@ const relatedLinks: LinkItem[] = parentLink ? [parentLink] : [];
 	</header>
 
 	<DetailSection id="overview" title="요약">
-		<div class="space-y-6">
+		<div class="flex flex-col gap-6">
 			<MetaList items={meta} />
 			{
 				!isUnconfirmed(data.summary) && (
