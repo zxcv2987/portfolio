@@ -1,0 +1,39 @@
+---
+interface Heading {
+	depth: number;
+	slug: string;
+	text: string;
+}
+
+interface Props {
+	headings: Heading[];
+	class?: string;
+}
+
+const { headings, class: className } = Astro.props;
+const items = headings.filter((heading) => heading.depth === 2);
+---
+
+{
+	items.length > 0 && (
+		<details class:list={['mt-10 border border-border-subtle', className]}>
+			<summary class="cursor-pointer list-none px-4 py-3 text-sm font-medium select-none">
+				목차
+			</summary>
+			<nav aria-label="문서 목차" class="border-t border-border-subtle px-4 py-3">
+				<ol class="m-0 list-none space-y-1 p-0 text-sm">
+					{items.map((heading) => (
+						<li>
+							<a
+								href={`#${heading.slug}`}
+								class="text-muted no-underline hover:text-foreground hover:underline"
+							>
+								{heading.text}
+							</a>
+						</li>
+					))}
+				</ol>
+			</nav>
+		</details>
+	)
+}

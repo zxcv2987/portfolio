@@ -53,7 +53,11 @@ const steps: Step[] = [
 ---
 
 <div class:list={['w-full', className]}>
-	<ol class:list={['m-0 list-none space-y-10 p-0']}>
+	<p class="m-0 text-sm text-muted">
+		아래 "구현" 섹션에서 설명하는 네 단계를 빠르게 훑어볼 수 있도록 요약한
+		흐름입니다.
+	</p>
+	<ol class:list={['mt-6 list-none space-y-10 p-0']}>
 		{
 			steps.map((step, i) => (
 				<li class="relative flex gap-4 sm:gap-6">

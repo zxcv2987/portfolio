@@ -7,6 +7,7 @@ import LabeledList from '../../components/detail/LabeledList.astro';
 import RelatedLinks from '../../components/detail/RelatedLinks.astro';
 import PrevNextNav from '../../components/detail/PrevNextNav.astro';
 import ArticleBody from '../../components/detail/ArticleBody.astro';
+import TableOfContents from '../../components/detail/TableOfContents.astro';
 import AdminRenewalProcess from '../../components/diagrams/AdminRenewalProcess.astro';
 import DeviceDetectionFlow from '../../components/diagrams/DeviceDetectionFlow.astro';
 import {
@@ -56,7 +57,7 @@ interface Props {
 }
 
 const { entry, parentLink, prev, next } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const data = entry.data;
 const slug = data.slug || entry.id;
 
@@ -78,7 +79,7 @@ const relatedLinks: LinkItem[] = parentLink ? [parentLink] : [];
 		</h1>
 	</header>
 
-	<DetailSection id="overview" title="한눈에 보기">
+	<DetailSection id="overview" title="요약">
 		<div class="space-y-6">
 			<MetaList items={meta} />
 			{
@@ -94,6 +95,8 @@ const relatedLinks: LinkItem[] = parentLink ? [parentLink] : [];
 			)}
 		</div>
 	</DetailSection>
+
+	<TableOfContents headings={headings} />
 
 	{
 		slug === 'admin-renewal' && (
