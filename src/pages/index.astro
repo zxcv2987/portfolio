@@ -43,10 +43,6 @@ const featuredProjects = projectEntries.filter(
 const otherProjects = projectEntries.filter(
 	(entry) => !entry.data.featured,
 );
-
-const caseStudiesByHref = new Map(
-	caseStudyEntries.map((entry) => [`/case-studies/${entry.data.slug}`, entry]),
-);
 ---
 
 <Layout title={`${site.nameEn} — ${site.role}`}>
@@ -87,9 +83,6 @@ const caseStudiesByHref = new Map(
 					]
 						.filter((part) => part !== undefined)
 						.join(' · ');
-					const relatedCaseStudies = (entry.data.case_studies ?? [])
-						.map((href) => caseStudiesByHref.get(href))
-						.filter((caseStudy) => caseStudy !== undefined);
 
 					return (
 						<article>
@@ -97,20 +90,6 @@ const caseStudiesByHref = new Map(
 								{entry.data.company}
 							</h3>
 							<p class="mt-1 text-sm text-muted">{meta}</p>
-							{relatedCaseStudies.length > 0 && (
-								<ul class="mt-3 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-sm">
-									{relatedCaseStudies.map((caseStudy) => (
-										<li>
-											<a
-												href={`/case-studies/${caseStudy.data.slug}`}
-												class="no-underline hover:underline"
-											>
-												{caseStudy.data.title}
-											</a>
-										</li>
-									))}
-								</ul>
-							)}
 						</article>
 					);
 				})
