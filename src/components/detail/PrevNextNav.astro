@@ -12,11 +12,21 @@ interface Props {
 const { prev, next } = Astro.props;
 ---
 
+<p class="mt-16 text-sm sm:mt-20">
+	<a
+		href="#main-content"
+		class="inline-flex min-h-11 items-center no-underline hover:underline"
+	>
+		<span aria-hidden="true" class="mr-1.5 text-muted">↑</span>
+		맨 위로
+	</a>
+</p>
+
 {
 	(prev || next) && (
 		<nav
 			aria-label="같은 목록의 이전·다음 항목"
-			class="mt-16 border-t border-border-subtle pt-6 text-sm sm:mt-20 sm:flex sm:justify-between sm:gap-8"
+			class="mt-2 border-t border-border-subtle pt-6 text-sm sm:flex sm:justify-between sm:gap-8"
 		>
 			{prev ? (
 				<a href={prev.href} class="no-underline hover:underline">

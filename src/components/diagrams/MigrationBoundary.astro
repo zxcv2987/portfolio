@@ -1,0 +1,62 @@
+---
+/**
+ * 데이터 이전에서 외부 I/O와 DB 트랜잭션의 경계, 그리고 실패 시 역방향
+ * 보상 삭제를 보여주는 도식.
+ *
+ * 파이프라인 단계 나열은 본문이 담당한다. 여기서는 산문이 잘 전달하지 못하는
+ * 두 가지만 그린다: 스토리지 쓰기가 트랜잭션 밖이라는 것과, 실패가 앞 단계로
+ * 되돌아가 파일을 지운다는 것.
+ */
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<figure class:list={['m-0 w-full', className]}>
+	<div class="rounded-lg border border-dashed border-border-subtle bg-background px-4 py-3">
+		<p class="m-0 text-xs font-semibold text-muted">트랜잭션 밖 · 외부 I/O</p>
+		<p class="m-0 mt-1 text-sm font-medium">
+			첨부 다운로드 → 스토리지 저장
+		</p>
+	</div>
+
+	<div aria-hidden="true" class="relative mx-auto h-7 w-px bg-border-subtle">
+		<span
+			class="absolute -bottom-0.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-4 border-t-[5px] border-x-transparent border-t-muted"
+		></span>
+	</div>
+
+	<div class="rounded-lg border-2 border-foreground bg-background px-4 py-3">
+		<p class="m-0 text-xs font-semibold">Task 단위 트랜잭션</p>
+		<p class="m-0 mt-1 text-sm font-medium">
+			Task · 담당자 · 댓글 · 첨부 레코드 기록
+		</p>
+	</div>
+
+	<div aria-hidden="true" class="relative mx-auto h-7 w-px bg-border-subtle"></div>
+
+	<div class="grid gap-4 sm:grid-cols-2">
+		<div class="rounded-lg border border-border-subtle bg-background px-4 py-3">
+			<p class="m-0 text-xs font-semibold text-muted">성공</p>
+			<p class="m-0 mt-1 text-sm font-medium">다음 Task 계속</p>
+		</div>
+		<div class="rounded-lg border border-border-subtle bg-background px-4 py-3">
+			<p class="m-0 text-xs font-semibold text-muted">실패</p>
+			<p class="m-0 mt-1 text-sm font-medium">해당 Task만 롤백</p>
+			<p class="m-0 mt-2 flex items-baseline gap-2 text-sm font-medium">
+				<span aria-hidden="true" class="text-muted">↑</span>
+				저장한 파일 보상 삭제
+			</p>
+			<p class="m-0 mt-1 pl-6 text-xs leading-relaxed text-muted">
+				첫 단계에서 이미 쓴 파일을 지워 고아 파일을 남기지 않습니다.
+			</p>
+		</div>
+	</div>
+
+	<figcaption class="mt-4 text-sm leading-relaxed text-muted">
+		실패 경계를 Task 하나로 좁혀, 한 건이 실패해도 나머지 이전은 계속됩니다.
+		되돌려야 할 범위도 그 Task가 만든 레코드와 파일로 한정됩니다.
+	</figcaption>
+</figure>

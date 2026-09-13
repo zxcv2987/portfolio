@@ -7,7 +7,7 @@ period: "2025.06 - 현재"
 role: "Frontend Engineer"
 summary: "갤럭시 태블릿의 데스크톱 모드가 Linux PC로 오인되는 문제를 Sentry 환경 데이터와 복수 신호 기반 판별 로직으로 해결했습니다."
 featured: true
-order: 2
+order: 3
 tech:
   - "TypeScript"
   - "Sentry"

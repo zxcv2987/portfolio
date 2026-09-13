@@ -1,0 +1,352 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { isUnconfirmed } from '../lib/detail';
+import { getProfile, getSkillGroups } from '../lib/profile';
+
+const profile = getProfile();
+const caseStudies = await getCollection('case-studies');
+const projects = await getCollection('projects');
+const experiences = await getCollection('experience');
+
+function findCaseStudy(slug: string) {
+	const entry = caseStudies.find((item) => item.data.slug === slug);
+	if (!entry) throw new Error(`Case study not found: ${slug}`);
+	return entry;
+}
+
+function findProject(slug: string) {
+	const entry = projects.find((item) => item.data.slug === slug);
+	if (!entry) throw new Error(`Project not found: ${slug}`);
+	return entry;
+}
+
+const adminRenewal = findCaseStudy('admin-renewal');
+const internalIssueManagement = findCaseStudy('internal-issue-management');
+const deviceDetection = findCaseStudy('device-detection');
+const dongle = findProject('dongle');
+const teammapa = experiences.find((entry) => entry.id === 'teammapa');
+
+const profileSkills = getSkillGroups(profile);
+
+const profileSkill = (label: string) =>
+	profileSkills.find((group) => group.label === label)?.items ?? [];
+
+const skills = [
+	{ label: 'Frontend', items: profileSkill('Frontend') },
+	{ label: 'Backend & Data', items: profileSkill('Backend & Data') },
+	{ label: '품질·운영', items: profileSkill('Test & Operations') },
+	{ label: 'Mobile', items: profileSkill('Mobile') },
+].filter((group) => group.items.length > 0);
+
+const resumeNarratives = {
+	'admin-renewal': {
+		label: '관리자 시스템 리뉴얼',
+		bullets: [
+			'관리자 시스템의 실제 요구사항을 다시 검토해 Vite 기반으로 재구성하고, 빌드 시간을 5~10분에서 약 30초로 단축했습니다.',
+			'라우팅·권한·서버 상태·API 요청의 책임을 분리하고, 반복되는 테이블·필터·폼을 공통 구조로 정리했습니다.',
+		],
+	},
+	'internal-issue-management': {
+		label: '사내 이슈 관리 시스템 구축',
+		bullets: [
+			'기존 협업 도구 분석과 동료 인터뷰·클라이언트 피드백을 바탕으로 자체 구축을 제안하고, 요구사항·업무 정책·출시 범위를 구체화했습니다.',
+			'애플리케이션 개발을 1인으로 담당해 프로젝트별 권한·데이터 격리, SSE 기반 실시간 갱신과 알림을 설계하고 React/Vite·NestJS/PostgreSQL로 구현했습니다.',
+			'테스트 라인 커버리지 90% 이상을 유지하고 주요 API·사용자 시나리오를 E2E로 검증했으며, 이슈 약 500건·댓글 약 900건·첨부 약 400건의 시험 이전을 완료해 운영 대사와 배포를 준비하고 있습니다.',
+		],
+	},
+	'device-detection': {
+		label: '데스크톱 전용 서비스 기기 판별 개선',
+		bullets: [
+			'Sentry 환경 데이터로 갤럭시 태블릿의 데스크톱 모드 오인 원인을 확인하고, 화면·터치·GPU 신호를 조합한 판별 로직으로 개선했습니다.',
+		],
+	},
+	dongle: {
+		label: '동글',
+		bullets: [
+			'초기에는 학생용 앱을 담당했고, 이후 사용자·관리자 앱과 공통 모듈을 Turborepo로 단독 통합한 뒤 직접 배포하고 출시 후 프론트엔드를 전담했습니다.',
+			'독립 배포된 앱 사이에서 필요한 데이터만 갱신하도록 선택적 캐시 무효화 구조를 구현했습니다.',
+			'한글 IME와 URL 상태를 고려한 검색 경험, 헬스체크 실패 시 이전 릴리스로 복구하는 배포 흐름을 구성했습니다.',
+		],
+	},
+} as const;
+
+const evidence = [
+	{
+		value: '약 2개월 · 1인 개발',
+		label: '사내 이슈 관리 시스템의 요구사항 정의부터 출시 준비까지',
+	},
+	{
+		value: adminRenewal.data.highlights[0],
+		label: '관리자 시스템의 개발 피드백 속도를 개선한 결과',
+	},
+	{
+		value: '실사용자 환경 분석',
+		label: 'Sentry 데이터로 확인한 기기 판별 문제 해결',
+	},
+];
+
+const caseItems = [internalIssueManagement, adminRenewal, deviceDetection];
+const dongleLinks = dongle.data.links ?? {};
+const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
+	`/${type}/${slug}`;
+---
+
+<Layout
+	title={`${profile.name} — ${profile.role} 이력서`}
+	description="사용자 문제를 이해하고 더 나은 제품 경험을 만들어가는 프론트엔드 엔지니어 강태양의 이력서입니다."
+>
+	<div class="resume-shell">
+		<div class="resume-actions print-hidden">
+			<p>인쇄 대화상자에서 ‘PDF로 저장’을 선택할 수 있습니다.</p>
+			<button type="button" class="print-button" data-print-resume>
+				PDF로 저장
+			</button>
+		</div>
+
+		<article class="resume-document" aria-labelledby="resume-title">
+			<header class="resume-header">
+				<div>
+					<h1 id="resume-title">{profile.name}</h1>
+					<p class="resume-role">{profile.role}</p>
+				</div>
+				<address class="resume-contact">
+					<a href={`mailto:${profile.email}`}>{profile.email}</a>
+					<a href={profile.github} rel="noopener noreferrer" target="_blank">
+						GitHub
+						<span class="print-url">{profile.github}</span>
+					</a>
+					<a href="/">Portfolio <span class="print-url">/</span></a>
+				</address>
+			</header>
+
+			<p class="resume-positioning">{profile.headline}</p>
+
+			<ol class="resume-evidence" aria-label="핵심 경험">
+				{
+					evidence.map((item) => (
+						<li>
+							<strong>{item.value}</strong>
+							<span>{item.label}</span>
+						</li>
+					))
+				}
+			</ol>
+
+			<section class="resume-section" aria-labelledby="experience-heading">
+				<div class="section-heading">
+					<h2 id="experience-heading">경력</h2>
+					{teammapa?.data.period && <p>{teammapa.data.period}</p>}
+				</div>
+				<div class="company-heading">
+					<h3>{teammapa?.data.company ?? '주식회사 팀마파'}</h3>
+					<p>{teammapa?.data.role ?? profile.role} · {teammapa?.data.employment_type ?? '정규직'}</p>
+				</div>
+
+				<div class="case-list">
+					{
+						caseItems.map((item) => {
+							const narrative = resumeNarratives[item.data.slug as keyof typeof resumeNarratives];
+							const href = detailPath(item.data.slug, 'case-studies');
+
+							return (
+								<article class="case-item">
+									<div class="case-heading">
+										<h4><a href={href}>{narrative.label}</a></h4>
+								<a class="detail-link" href={href}>상세 사례 보기</a>
+									</div>
+									<ul>
+										{narrative.bullets.map((bullet) => <li>{bullet}</li>)}
+									</ul>
+									<p class="stack-row"><strong>기술</strong> {item.data.tech.join(' · ')}</p>
+								</article>
+							);
+						})
+					}
+				</div>
+			</section>
+
+			<section class="resume-section" aria-labelledby="projects-heading">
+				<div class="section-heading">
+					<h2 id="projects-heading">주요 프로젝트</h2>
+					{dongle.data.period && <p>{dongle.data.period}</p>}
+				</div>
+				<article class="case-item">
+					<div class="case-heading">
+						<div>
+							<h3><a href={detailPath(dongle.data.slug, 'projects')}>{resumeNarratives.dongle.label}</a></h3>
+							<p>{dongle.data.role} · {dongle.data.category}</p>
+						</div>
+						<a class="detail-link" href={detailPath(dongle.data.slug, 'projects')}>
+							상세 프로젝트 보기<span class="print-url">/projects/{dongle.data.slug}</span>
+						</a>
+					</div>
+					<ul>
+						{resumeNarratives.dongle.bullets.map((bullet) => <li>{bullet}</li>)}
+					</ul>
+					<p class="stack-row"><strong>기술</strong> {dongle.data.tech.join(' · ')}</p>
+					{
+						(!isUnconfirmed(dongleLinks.service) || !isUnconfirmed(dongleLinks.frontend)) && (
+							<p class="project-links">
+								{!isUnconfirmed(dongleLinks.service) && (
+									<a href={dongleLinks.service} rel="noopener noreferrer" target="_blank">
+										서비스 <span class="print-url">{dongleLinks.service}</span>
+									</a>
+								)}
+								{!isUnconfirmed(dongleLinks.frontend) && (
+									<a href={dongleLinks.frontend} rel="noopener noreferrer" target="_blank">
+										저장소 <span class="print-url">{dongleLinks.frontend}</span>
+									</a>
+								)}
+							</p>
+						)
+					}
+				</article>
+			</section>
+
+			<section class="resume-section resume-skills" aria-labelledby="skills-heading">
+				<h2 id="skills-heading">기술</h2>
+				<dl>
+					{skills.map((skill) => (
+						<div>
+							<dt>{skill.label}</dt>
+							<dd>{skill.items.join(', ')}</dd>
+						</div>
+					))}
+				</dl>
+			</section>
+
+			<section class="resume-section resume-credentials" aria-labelledby="credentials-heading">
+				<h2 id="credentials-heading">학력 · 자격 · 수상</h2>
+				<div>
+					<h3>순천대학교 컴퓨터공학과</h3>
+					<p>2025.02 졸업</p>
+				</div>
+				<div>
+					<h3>정보처리기사</h3>
+					<p>한국산업인력공단 · 2024.09 최종합격</p>
+				</div>
+				<div>
+					<h3>2023 빛가람에너지밸리 소프트웨어 작품 경진대회 수상</h3>
+					<p>코펫 프로젝트 · 한전KDN · 2023.11</p>
+				</div>
+			</section>
+
+			<footer class="resume-close">
+				<h2>연락 및 상세 사례</h2>
+				<p>사용자 문제를 제품 경험으로 바꾸는 일에 함께하고 싶습니다.</p>
+				<div>
+					<a href={`mailto:${profile.email}`}>{profile.email}</a>
+					<a href={profile.github} rel="noopener noreferrer" target="_blank">
+						GitHub<span class="print-url">{profile.github}</span>
+					</a>
+					<a href="/case-studies">대표 사례 전체 보기<span class="print-url">/case-studies</span></a>
+				</div>
+			</footer>
+		</article>
+	</div>
+</Layout>
+
+<script>
+	const printButton = document.querySelector<HTMLButtonElement>('[data-print-resume]');
+
+	printButton?.addEventListener('click', () => window.print());
+</script>
+
+<style>
+	.resume-shell { max-width: 52rem; margin: 0 auto; }
+	.resume-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.875rem; line-height: 1.5; color: var(--color-muted); }
+	.resume-actions p, .resume-positioning, .company-heading p, .section-heading p, .case-heading p, .resume-close p { margin: 0; }
+	.print-button { min-height: 2.75rem; border: 1px solid var(--color-foreground); background: var(--color-foreground); padding: 0.55rem 0.85rem; color: var(--color-background); font: inherit; font-weight: 600; line-height: 1; cursor: pointer; transition: background-color 160ms ease, color 160ms ease; }
+	.print-button:hover { background: var(--color-background); color: var(--color-foreground); }
+	.resume-document { border-top: 2px solid var(--color-foreground); }
+	.resume-header { display: flex; align-items: end; justify-content: space-between; gap: 2rem; padding: 2rem 0 1.15rem; }
+	.resume-header h1, .resume-section h2, .company-heading h3, .case-heading h3, .case-heading h4, .resume-credentials h3, .resume-close h2 { margin: 0; }
+	.resume-header h1 { font-size: clamp(2.25rem, 5vw, 2.9rem); letter-spacing: -0.04em; }
+	.resume-role { margin: 0.25rem 0 0; color: var(--color-muted); font-size: 1rem; font-weight: 600; }
+	.resume-contact { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.25rem 0.8rem; font-size: 0.875rem; font-style: normal; line-height: 1.55; text-align: right; }
+	.resume-document a { text-decoration-color: var(--color-border-subtle); }
+	.resume-document a:hover { text-decoration-color: var(--color-foreground); }
+	.resume-positioning { max-width: 42rem; border-top: 1px solid var(--color-border-subtle); padding: 1rem 0 1.15rem; font-size: clamp(1rem, 2vw, 1.125rem); font-weight: 600; line-height: 1.65; letter-spacing: -0.018em; }
+	.resume-evidence { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; border-top: 1px solid var(--color-border-subtle); border-bottom: 1px solid var(--color-border-subtle); list-style: none; }
+	.resume-evidence li { min-width: 0; padding: 1rem 1rem 1rem 0; }
+	.resume-evidence li + li { border-left: 1px solid var(--color-border-subtle); padding-left: 1rem; }
+	.resume-evidence strong { display: block; font-size: 1rem; line-height: 1.35; letter-spacing: -0.02em; }
+	.resume-evidence span { display: block; margin-top: 0.28rem; color: var(--color-muted); font-size: 0.875rem; line-height: 1.5; }
+	.resume-section { margin-top: 1.6rem; border-top: 1px solid var(--color-border-subtle); padding-top: 1.35rem; }
+	.section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+	.resume-section h2, .resume-close h2 { font-size: 1rem; letter-spacing: -0.02em; }
+	.section-heading p, .company-heading p, .case-heading p { color: var(--color-muted); font-size: 0.875rem; line-height: 1.55; }
+	.company-heading { margin-top: 0.8rem; }
+	.company-heading h3, .case-heading h3 { font-size: 1.0625rem; letter-spacing: -0.025em; }
+	.case-list { margin-top: 1rem; }
+	.case-item { padding: 1rem 0; border-top: 1px solid var(--color-border-subtle); }
+	.case-list .case-item:first-child { padding-top: 0; border-top: 0; }
+	.case-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+	.case-heading h4 { font-size: 0.9375rem; letter-spacing: -0.015em; }
+	.detail-link { flex: none; padding: 0.25rem 0; font-size: 0.875rem; white-space: nowrap; }
+	.case-item ul { margin: 0.42rem 0 0; padding-left: 1.1rem; font-size: 0.9375rem; line-height: 1.65; }
+	.case-item li + li { margin-top: 0.22rem; }
+	.stack-row { margin: 0.6rem 0 0; color: var(--color-muted); font-size: 0.8125rem; line-height: 1.6; }
+	.stack-row strong { margin-right: 0.45rem; color: var(--color-foreground); font-weight: 600; }
+	.project-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.65rem 0 0; font-size: 0.875rem; }
+	.resume-skills dl { display: grid; gap: 0.6rem; margin: 0.85rem 0 0; }
+	.resume-skills dl div { display: grid; grid-template-columns: minmax(8rem, 0.3fr) 1fr; gap: 1rem; }
+	.resume-skills dt { font-size: 0.875rem; font-weight: 600; }
+	.resume-skills dd { margin: 0; color: var(--color-muted); font-size: 0.875rem; line-height: 1.6; }
+	.resume-credentials > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 1rem; padding: 0.72rem 0; border-bottom: 1px solid var(--color-border-subtle); }
+	.resume-credentials > div:first-of-type { margin-top: 0.65rem; border-top: 1px solid var(--color-border-subtle); }
+	.resume-credentials h3 { font-size: 0.875rem; letter-spacing: -0.015em; }
+	.resume-credentials p { margin: 0; color: var(--color-muted); font-size: 0.875rem; line-height: 1.55; text-align: right; }
+	.resume-close { margin-top: 1.6rem; border-top: 2px solid var(--color-foreground); padding: 1.15rem 0 0.2rem; }
+	.resume-close p { margin-top: 0.3rem; color: var(--color-muted); font-size: 0.875rem; }
+	.resume-close div { display: flex; flex-wrap: wrap; gap: 0.55rem 1rem; margin-top: 0.7rem; font-size: 0.875rem; }
+	.resume-close a { padding: 0.25rem 0; }
+	.print-url { display: none; }
+	@media (max-width: 40rem) {
+		.resume-actions { align-items: flex-start; flex-direction: column; gap: 0.7rem; }
+		.resume-header, .case-heading { align-items: flex-start; flex-direction: column; gap: 0.55rem; }
+		.resume-contact { justify-content: flex-start; text-align: left; }
+		.resume-evidence { grid-template-columns: 1fr; }
+		.resume-evidence li, .resume-evidence li + li { padding: 0.85rem 0; border-left: 0; }
+		.resume-evidence li + li { border-top: 1px solid var(--color-border-subtle); }
+		.detail-link { display: inline-flex; align-items: center; min-height: 2.75rem; }
+		.case-item ul { font-size: 0.9375rem; }
+		.resume-skills dl div { display: block; }
+		.resume-skills dd { margin-top: 0.2rem; }
+		.resume-credentials > div { display: block; }
+		.resume-credentials p { margin-top: 0.12rem; text-align: left; }
+	}
+	@media print {
+		:global(body > header), :global(body > footer), :global(.print-hidden), :global(.sr-only) { display: none !important; }
+		/* 종이에서는 누를 수 없는 내부 라우트 링크를 숨긴다. 외부 주소가 실제로
+		   찍히는 링크(메일·GitHub·서비스·저장소)와 포트폴리오 주소는 남긴다. */
+		.detail-link { display: none !important; }
+		.resume-document a { text-decoration: none; }
+		:global(body) { background: #fff; font-size: 9.5pt; line-height: 1.4; }
+		:global(main) { padding: 0 !important; }
+		:global(main > div), .resume-shell { max-width: none !important; }
+		.resume-header { padding: 0.65rem 0 0.8rem; }
+		.resume-header h1 { font-size: 24pt; }
+		.resume-role, .resume-contact, .resume-evidence span, .section-heading p, .company-heading p, .case-heading p, .detail-link, .project-links, .resume-skills dt, .resume-skills dd, .resume-credentials h3, .resume-credentials p, .resume-close p, .resume-close div { font-size: 8.5pt; }
+		.resume-positioning { padding: 0.7rem 0 0.8rem; font-size: 10pt; line-height: 1.5; }
+		.resume-evidence li { padding: 0.7rem 0.7rem 0.7rem 0; }
+		.resume-evidence li + li { padding-left: 0.7rem; }
+		.resume-evidence strong { font-size: 9.5pt; }
+		.resume-section { margin-top: 0.9rem; padding-top: 0.8rem; }
+		.resume-section h2, .resume-close h2, .company-heading h3, .case-heading h3, .case-heading h4 { font-size: 9.5pt; }
+		.company-heading { margin-top: 0.5rem; }
+		.case-list { margin-top: 0.65rem; }
+		.case-item { padding: 0.65rem 0; break-inside: avoid; }
+		.case-item ul { margin-top: 0.25rem; font-size: 9pt; line-height: 1.45; }
+		.case-item li + li { margin-top: 0.08rem; }
+		.stack-row { margin-top: 0.32rem; font-size: 8pt; }
+		.resume-skills dl { gap: 0.28rem; margin-top: 0.55rem; }
+		.resume-skills dl div { gap: 0.7rem; }
+		.resume-credentials > div { padding: 0.38rem 0; }
+		.resume-credentials > div:first-of-type { margin-top: 0.4rem; }
+		.resume-close { margin-top: 0.9rem; padding-top: 0.75rem; break-inside: avoid; }
+		.print-url { display: inline; margin-left: 0.25rem; color: var(--color-muted); font-size: 7.5pt; overflow-wrap: anywhere; }
+	}
+	@page { size: A4; margin: 12mm 14mm; }
+</style>

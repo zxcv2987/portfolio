@@ -8,10 +8,10 @@ export const site = {
 	nameEn: 'Taeyang Kang',
 	role: 'Frontend Engineer',
 	headline:
-		'서비스 운영 흐름을 이해하고 구조적 판단으로 안정성과 생산성을 함께 개선하는 프론트엔드 개발자',
+		'사용자 문제를 이해하고 더 나은 제품 경험을 만들어가는 프론트엔드 엔지니어',
 	email: 'z62314386@gmail.com',
 	github: 'https://github.com/zxcv2987',
-	resumePath: '/resume.pdf',
+	resumePath: '/resume',
 } as const;
 
 export const navItems: NavItem[] = [
