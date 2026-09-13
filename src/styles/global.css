@@ -5,6 +5,11 @@
 		'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
 		'Apple SD Gothic Neo', 'Noto Sans KR', 'Segoe UI', Roboto, sans-serif;
 
+	/* 기본 -0.025em은 라틴 디스플레이 관행이라 한글 받침 분리를 압축한다.
+	   헤딩 대부분이 한글이므로 절반으로 완화하고, 숫자 위주인 Metric 값에만
+	   더 좁은 자간을 개별 지정한다. */
+	--tracking-tight: -0.01em;
+
 	--color-background: #fafaf9;
 	--color-foreground: #1c1917;
 	--color-muted: #57534e;
@@ -25,6 +30,11 @@
 		min-height: 100dvh;
 		font-size: 1rem;
 		line-height: 1.75;
+		/* 한글은 기본값에서 음절 사이 어디서나 줄바꿈된다. 어절(공백) 단위로만
+		   끊기도록 제한해야 제목과 본문이 자연스럽게 읽힌다. keep-all이 끊지
+		   못하는 긴 라틴 토큰(URL 등)은 overflow-wrap으로 흘려보낸다. */
+		word-break: keep-all;
+		overflow-wrap: break-word;
 	}
 
 	h1,
