@@ -3,7 +3,7 @@ title: "데스크톱 전용 서비스의 기기 판별 로직 개선"
 slug: "device-detection"
 category: "Work Experience"
 company: "주식회사 팀마파"
-period: "2025.06 - 현재"
+period: "2026.04"
 role: "Frontend Engineer"
 summary: "갤럭시 태블릿의 데스크톱 모드가 Linux PC로 오인되는 문제를 Sentry 환경 데이터와 복수 신호 기반 판별 로직으로 해결했습니다."
 featured: true

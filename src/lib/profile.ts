@@ -8,6 +8,7 @@ const profileSchema = z.object({
 	role: z.string(),
 	headline: z.string(),
 	email: z.email(),
+	phone: z.string(),
 	github: z.url(),
 	resume_path: z.string(),
 });

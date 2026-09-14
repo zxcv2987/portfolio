@@ -43,7 +43,7 @@ const resumeNarratives = {
 	'admin-renewal': {
 		label: '관리자 시스템 리뉴얼',
 		bullets: [
-			'관리자 시스템의 실제 요구사항을 다시 검토해 Vite 기반으로 재구성하고, 빌드 시간을 5~10분에서 약 30초로 단축했습니다.',
+			'관리자 시스템의 실제 요구사항을 다시 검토해 Vite 기반으로 재구성하고, 빌드 시간을 약 10분에서 약 30초로 단축했습니다.',
 			'라우팅·권한·서버 상태·API 요청의 책임을 분리하고, 반복되는 테이블·필터·폼을 공통 구조로 정리했습니다.',
 		],
 	},
@@ -52,7 +52,8 @@ const resumeNarratives = {
 		bullets: [
 			'기존 협업 도구 분석과 동료 인터뷰·클라이언트 피드백을 바탕으로 자체 구축을 제안하고, 요구사항·업무 정책·출시 범위를 구체화했습니다.',
 			'애플리케이션 개발을 1인으로 담당해 프로젝트별 권한·데이터 격리, SSE 기반 실시간 갱신과 알림을 설계하고 React/Vite·NestJS/PostgreSQL로 구현했습니다.',
-			'테스트 라인 커버리지 90% 이상을 유지하고 주요 API·사용자 시나리오를 E2E로 검증했으며, 이슈 약 500건·댓글 약 900건·첨부 약 400건의 시험 이전을 완료해 운영 대사와 배포를 준비하고 있습니다.',
+			'테스트 라인 커버리지 90% 이상을 유지하고 주요 API·사용자 시나리오를 E2E로 검증했습니다.',
+			'이슈 약 500건·댓글 약 900건·첨부 약 400건의 시험 이전을 완료해 운영 대사와 배포를 준비하고 있습니다.',
 		],
 	},
 	'device-detection': {
@@ -81,13 +82,14 @@ const evidence = [
 		label: '관리자 시스템의 개발 피드백 속도를 개선한 결과',
 	},
 	{
-		value: '실사용자 환경 분석',
-		label: 'Sentry 데이터로 확인한 기기 판별 문제 해결',
+		value: '갤럭시 태블릿 오인 문제 해결',
+		label: 'Sentry 환경 데이터 기반 원인 분석',
 	},
 ];
 
 const caseItems = [internalIssueManagement, adminRenewal, deviceDetection];
 const dongleLinks = dongle.data.links ?? {};
+const dongleResumeTech = ['Next.js', 'TypeScript', 'Turborepo', 'TanStack Query', 'Playwright', 'GitHub Actions'];
 const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 	`/${type}/${slug}`;
 ---
@@ -111,12 +113,13 @@ const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 					<p class="resume-role">{profile.role}</p>
 				</div>
 				<address class="resume-contact">
+					<a href={`tel:${profile.phone.replaceAll('-', '')}`}>{profile.phone}</a>
 					<a href={`mailto:${profile.email}`}>{profile.email}</a>
 					<a href={profile.github} rel="noopener noreferrer" target="_blank">
 						GitHub
 						<span class="print-url">{profile.github}</span>
 					</a>
-					<a href="/">Portfolio <span class="print-url">/</span></a>
+					<a class="print-hidden" href="/">Portfolio</a>
 				</address>
 			</header>
 
@@ -152,8 +155,11 @@ const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 							return (
 								<article class="case-item">
 									<div class="case-heading">
-										<h4><a href={href}>{narrative.label}</a></h4>
-								<a class="detail-link" href={href}>상세 사례 보기</a>
+										<div>
+											<h4><a href={href}>{narrative.label}</a></h4>
+											<p>{item.data.period}</p>
+										</div>
+										<a class="detail-link" href={href}>상세 사례 보기</a>
 									</div>
 									<ul>
 										{narrative.bullets.map((bullet) => <li>{bullet}</li>)}
@@ -184,19 +190,19 @@ const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 					<ul>
 						{resumeNarratives.dongle.bullets.map((bullet) => <li>{bullet}</li>)}
 					</ul>
-					<p class="stack-row"><strong>기술</strong> {dongle.data.tech.join(' · ')}</p>
+					<p class="stack-row"><strong>기술</strong> {dongleResumeTech.join(' · ')}</p>
 					{
 						(!isUnconfirmed(dongleLinks.service) || !isUnconfirmed(dongleLinks.frontend)) && (
 							<p class="project-links">
 								{!isUnconfirmed(dongleLinks.service) && (
-									<a href={dongleLinks.service} rel="noopener noreferrer" target="_blank">
-										서비스 <span class="print-url">{dongleLinks.service}</span>
-									</a>
+								<a class="print-hidden" href={dongleLinks.service} rel="noopener noreferrer" target="_blank">
+									서비스 <span class="print-url">{dongleLinks.service}</span>
+								</a>
 								)}
 								{!isUnconfirmed(dongleLinks.frontend) && (
-									<a href={dongleLinks.frontend} rel="noopener noreferrer" target="_blank">
-										저장소 <span class="print-url">{dongleLinks.frontend}</span>
-									</a>
+								<a href={dongleLinks.frontend} rel="noopener noreferrer" target="_blank">
+									GitHub 저장소
+								</a>
 								)}
 							</p>
 						)
@@ -227,12 +233,12 @@ const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 					<p>한국산업인력공단 · 2024.09 최종합격</p>
 				</div>
 				<div>
-					<h3>2023 빛가람에너지밸리 소프트웨어 작품 경진대회 수상</h3>
-					<p>코펫 프로젝트 · 한전KDN · 2023.11</p>
+					<h3>빛가람에너지밸리 소프트웨어 작품 경진대회 입상</h3>
+					<p>전남 청년 문화복지카드 프로젝트 · 한전KDN · 2023.11</p>
 				</div>
 			</section>
 
-			<footer class="resume-close">
+			<footer class="resume-close print-hidden">
 				<h2>연락 및 상세 사례</h2>
 				<p>사용자 문제를 제품 경험으로 바꾸는 일에 함께하고 싶습니다.</p>
 				<div>
