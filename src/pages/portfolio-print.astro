@@ -6,6 +6,7 @@ import RealtimeBoundary from '../components/diagrams/RealtimeBoundary.astro';
 import { getProfile } from '../lib/profile';
 
 const profile = getProfile();
+const portfolioUrl = new URL('/', Astro.site ?? Astro.url).toString();
 const caseStudies = await getCollection('case-studies');
 const projects = await getCollection('projects');
 const experiences = await getCollection('experience');
@@ -30,11 +31,6 @@ const youthCard = findProject('youth-card');
 const teammapa = experiences.find((item) => item.id === 'teammapa');
 
 const githubUrl = profile.github;
-const dongleRepository = dongle.data.links?.frontend;
-const youthRepositories = [
-	youthCard.data.links?.web_v2,
-	youthCard.data.links?.app,
-].filter((value): value is string => Boolean(value));
 ---
 
 <Layout
@@ -76,7 +72,8 @@ const youthRepositories = [
 			</div>
 			<address class="cover-contact">
 				<a href={`mailto:${profile.email}`}>{profile.email}</a>
-				<a href={githubUrl}>GitHub</a>
+				<a href={githubUrl} rel="noopener noreferrer" target="_blank">GitHub</a>
+				<a href={portfolioUrl} rel="noopener noreferrer" target="_blank">Portfolio</a>
 			</address>
 		</section>
 
@@ -249,7 +246,6 @@ const youthRepositories = [
 				<p>{dongle.data.summary}</p>
 				<ul><li>초기 학생용 앱 담당, 이후 사용자·관리자 앱과 공통 모듈을 Turborepo로 단독 통합</li><li>직접 배포한 뒤 프론트엔드 유지보수와 기능 개선 전담</li><li>선택적 캐시 무효화, 한글 IME 검색, 헬스체크 실패 시 이전 릴리스 복구 구현</li></ul>
 				<p class="tech-line">Next.js · TypeScript · Turborepo · TanStack Query · Playwright · GitHub Actions</p>
-				{dongleRepository && <a class="repo-link" href={dongleRepository}>GitHub 저장소 ↗</a>}
 			</div>
 
 			<div class="project-feature secondary">
@@ -257,7 +253,6 @@ const youthRepositories = [
 				<p>엑셀로 확인해야 했던 가맹점 정보를 지도에서 검색할 수 있게 만들고, React 웹을 Flutter WebView 앱으로 확장했습니다.</p>
 				<div class="project-metrics"><div><strong>100회 이상</strong><span>Google Play 다운로드</span></div></div>
 				<p class="award">2023 빛가람에너지밸리 소프트웨어 작품 경진대회 입상 · 한전KDN</p>
-				<div class="repo-row">{youthRepositories.map((url, index) => <a href={url}>{index === 0 ? 'Web 저장소 ↗' : 'App 저장소 ↗'}</a>)}</div>
 			</div>
 
 			<footer class="closing-row">
@@ -365,27 +360,25 @@ const youthRepositories = [
 	.result-list { display: grid; grid-template-columns: 4rem 1fr; gap: 1rem; margin-top: 1.8rem; }
 	.result-list > span { font-size: 0.75rem; font-weight: 700; }
 	.result-list ul { margin: 0; padding-left: 1rem; font-size: 0.8rem; line-height: 1.7; }
-	.project-feature { margin-top: 2rem; padding-top: 1.4rem; border-top: 1px solid var(--color-foreground); }
-	.project-feature.secondary { margin-top: 2.3rem; }
+	.project-feature { margin-top: 2rem; }
+	.project-feature.secondary { margin-top: 2.3rem; padding-top: 1.4rem; border-top: 1px solid var(--color-foreground); }
 	.project-title-row span { color: var(--color-muted); font-size: 0.7rem; }
 	.project-title-row h3 { margin: 0.2rem 0 0; font-size: 1.35rem; }
 	.project-title-row > strong { font-size: 0.75rem; }
 	.project-feature > p:not(.tech-line):not(.award) { margin: 0.75rem 0 0; color: var(--color-muted); font-size: 0.82rem; line-height: 1.6; }
 	.project-feature > ul { margin: 0.8rem 0 0; padding-left: 1rem; font-size: 0.78rem; line-height: 1.65; }
 	.tech-line { margin: 0.7rem 0 0; font-size: 0.72rem; font-weight: 600; }
-	.repo-link, .repo-row { margin-top: 0.7rem; font-size: 0.75rem; font-weight: 650; }
 	.project-metrics { display: flex; gap: 2rem; margin-top: 0.8rem; }
 	.project-metrics strong, .project-metrics span { display: block; }
 	.project-metrics strong { font-size: 1rem; }
 	.project-metrics span { color: var(--color-muted); font-size: 0.68rem; }
 	.award { color: var(--color-foreground) !important; font-weight: 650; }
-	.repo-row { display: flex; gap: 1rem; }
 	.closing-row { position: absolute; right: 3.6rem; bottom: 3.2rem; left: 3.6rem; padding-top: 1rem; border-top: 1px solid var(--color-foreground); }
 	.closing-row strong, .closing-row span { display: block; }
 	.closing-row span { color: var(--color-muted); font-size: 0.75rem; }
 	.closing-row address { display: flex; gap: 1rem; font-size: 0.75rem; font-style: normal; }
 	.sheet-folio { position: absolute; right: 3.6rem; bottom: 1rem; color: var(--color-muted); font-size: 0.65rem; font-variant-numeric: tabular-nums; }
-	@media (max-width: 48rem) {
+	@media screen and (max-width: 48rem) {
 		.sheet { min-height: auto; padding: 2rem 1.35rem 3.5rem; }
 		.sheet p, .sheet li, .sheet a, .sheet span, .sheet small { font-size: max(1rem, 16px); }
 		.sheet-folio, .cover-topline span, .timeline-meta span, .decision-label { font-size: 0.8rem; }
@@ -409,19 +402,22 @@ const youthRepositories = [
 	}
 	@media print {
 		:global(body > header), :global(body > footer), :global(.print-hidden), :global(.sr-only) { display: none !important; }
-		:global(html), :global(body) { background: #fff !important; }
-		:global(body) { font-size: 9pt; line-height: 1.45; }
+		:global(html) { font-size: 14px; background: #fff !important; }
+		:global(body) { background: #fff !important; }
+		:global(body) { font-size: 8.5pt; line-height: 1.45; }
 		:global(main) { padding: 0 !important; }
 		:global(main > div) { max-width: none !important; }
 		.portfolio-document { display: block; }
 		.sheet { width: 182mm; height: 273mm; min-height: 273mm; margin: 0; padding: 12mm 13mm 11mm; border: 0; background: #fff !important; break-after: page; page-break-after: always; }
 		.sheet:last-child { break-after: auto; page-break-after: auto; }
-		.cover-main h1 { font-size: 56pt; }
-		.cover-headline { font-size: 15pt; }
-		.sheet-header h2, .case-header h2 { font-size: 23pt; }
+		.cover-main h1 { font-size: 52pt; }
+		.cover-headline { font-size: 13.5pt; }
+		.sheet-header h2, .case-header h2, .engineering-header h2 { font-size: 22pt; }
+		.lead { font-size: 10pt; }
+		.big-result strong { font-size: 23pt; }
 		.closing-row { right: 13mm; bottom: 11mm; left: 13mm; }
 		.sheet-folio { right: 13mm; bottom: 4mm; }
-		a { text-decoration: none; }
+		.cover-contact a { text-decoration: underline; text-underline-offset: 2px; }
 	}
 	@page { size: A4; margin: 12mm 14mm; }
 </style>

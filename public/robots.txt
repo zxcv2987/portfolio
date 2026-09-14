@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://taeyang-portfolio.vercel.app/sitemap-index.xml
+Sitemap: https://portfolio-bigsheeps-projects.vercel.app/sitemap-index.xml

@@ -5,6 +5,7 @@ import { isUnconfirmed } from '../lib/detail';
 import { getProfile, getSkillGroups } from '../lib/profile';
 
 const profile = getProfile();
+const portfolioUrl = new URL('/', Astro.site ?? Astro.url).toString();
 const caseStudies = await getCollection('case-studies');
 const projects = await getCollection('projects');
 const experiences = await getCollection('experience');
@@ -119,7 +120,7 @@ const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 						GitHub
 						<span class="print-url">{profile.github}</span>
 					</a>
-					<a class="print-hidden" href="/">Portfolio</a>
+					<a href={portfolioUrl} rel="noopener noreferrer" target="_blank">Portfolio</a>
 				</address>
 			</header>
 
@@ -328,7 +329,7 @@ const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 		/* 종이에서는 누를 수 없는 내부 라우트 링크를 숨긴다. 외부 주소가 실제로
 		   찍히는 링크(메일·GitHub·서비스·저장소)와 포트폴리오 주소는 남긴다. */
 		.detail-link { display: none !important; }
-		.resume-document a { text-decoration: none; }
+		.resume-contact a { text-decoration: underline; text-underline-offset: 2px; }
 		:global(body) { background: #fff; font-size: 9.5pt; line-height: 1.4; }
 		:global(main) { padding: 0 !important; }
 		:global(main > div), .resume-shell { max-width: none !important; }

@@ -8,9 +8,7 @@ import { stripLeadingH1 } from './src/plugins/strip-leading-h1.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-	// TODO: replace with the real production domain once deployed (needed for
-	// correct sitemap/canonical/OG URLs).
-	site: 'https://taeyang-portfolio.vercel.app',
+	site: 'https://portfolio-bigsheeps-projects.vercel.app',
 	integrations: [sitemap()],
 	markdown: {
 		processor: satteri({ mdastPlugins: [stripLeadingH1, hideUnconfirmed] }),
