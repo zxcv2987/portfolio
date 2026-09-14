@@ -116,11 +116,8 @@ const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 				<address class="resume-contact">
 					<a href={`tel:${profile.phone.replaceAll('-', '')}`}>{profile.phone}</a>
 					<a href={`mailto:${profile.email}`}>{profile.email}</a>
-					<a href={profile.github} rel="noopener noreferrer" target="_blank">
-						GitHub
-						<span class="print-url">{profile.github}</span>
-					</a>
-					<a href={portfolioUrl} rel="noopener noreferrer" target="_blank">Portfolio</a>
+					<a href={profile.github}>GitHub</a>
+					<a href={portfolioUrl}>Portfolio</a>
 				</address>
 			</header>
 
