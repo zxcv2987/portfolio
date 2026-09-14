@@ -1,0 +1,88 @@
+---
+/**
+ * 실시간 갱신에서 DB 트랜잭션 경계가 어디인지 보여주는 도식.
+ *
+ * 순서(01→05)는 본문이 이미 설명하므로 여기서는 반복하지 않고,
+ * 산문으로 전달하기 어려운 한 가지만 그린다: 무엇이 트랜잭션 안이고
+ * 무엇이 밖인가. 이 경계가 "전달 실패가 저장을 되돌리지 않는다"의 근거다.
+ */
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+
+interface Step {
+	index: string;
+	label: string;
+}
+
+const inside: Step[] = [
+	{ index: '01', label: '사용자 mutation' },
+	{ index: '02', label: 'DB transaction commit' },
+];
+
+const outside: Step[] = [
+	{ index: '03', label: 'SSE invalidation 신호 발행' },
+	{ index: '04', label: 'TanStack Query 캐시 무효화' },
+	{ index: '05', label: 'HTTP 재조회' },
+];
+---
+
+<figure class:list={['m-0 w-full', className]}>
+	<div class="rounded-lg border-2 border-foreground bg-background">
+		<p
+			class="m-0 border-b border-border-subtle px-4 py-2.5 text-xs font-semibold"
+		>
+			DB 트랜잭션 안
+		</p>
+		<ol class="m-0 list-none divide-y divide-border-subtle p-0">
+			{
+				inside.map((step) => (
+					<li class="grid grid-cols-[auto_1fr] items-baseline gap-x-3 px-4 py-3">
+						<span class="text-xs font-semibold tabular-nums text-muted">
+							{step.index}
+						</span>
+						<span class="text-sm font-medium">{step.label}</span>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+
+	<div class="relative flex justify-center py-2.5">
+		<div aria-hidden="true" class="absolute inset-y-0 w-px bg-border-subtle">
+			<span
+				class="absolute -bottom-0.5 left-1/2 h-0 w-0 -translate-x-1/2 border-x-4 border-t-[5px] border-x-transparent border-t-muted"
+			></span>
+		</div>
+		<p class="relative m-0 bg-background px-3 text-xs text-muted">
+			커밋이 끝난 뒤에만
+		</p>
+	</div>
+
+	<div class="rounded-lg border border-dashed border-border-subtle bg-background">
+		<p
+			class="m-0 border-b border-dashed border-border-subtle px-4 py-2.5 text-xs font-semibold text-muted"
+		>
+			트랜잭션 밖 · best-effort
+		</p>
+		<ol class="m-0 list-none divide-y divide-border-subtle p-0">
+			{
+				outside.map((step) => (
+					<li class="grid grid-cols-[auto_1fr] items-baseline gap-x-3 px-4 py-3">
+						<span class="text-xs font-semibold tabular-nums text-muted">
+							{step.index}
+						</span>
+						<span class="text-sm font-medium">{step.label}</span>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+
+	<figcaption class="mt-4 text-sm leading-relaxed text-muted">
+		에이전트가 03을 트랜잭션 안에 넣은 구현을 만든 적이 있습니다. 그 경우 실시간
+		전달 실패가 02까지 되돌립니다. 리뷰에서 이 경계를 밖으로 옮겼습니다.
+	</figcaption>
+</figure>

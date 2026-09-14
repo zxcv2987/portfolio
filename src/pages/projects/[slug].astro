@@ -7,7 +7,9 @@ import LabeledList from '../../components/detail/LabeledList.astro';
 import RelatedLinks from '../../components/detail/RelatedLinks.astro';
 import PrevNextNav from '../../components/detail/PrevNextNav.astro';
 import ArticleBody from '../../components/detail/ArticleBody.astro';
-import TableOfContents from '../../components/detail/TableOfContents.astro';
+import TableOfContents, {
+	type ExtraSection,
+} from '../../components/detail/TableOfContents.astro';
 import DongleStructure from '../../components/diagrams/DongleStructure.astro';
 import {
 	isLiveService,
@@ -72,6 +74,10 @@ const remainingLinks = data.links
 		)
 	: {};
 const relatedLinks = linkItemsFromRecord(remainingLinks);
+
+/** 도식은 본문 뒤에 두고 목차에도 같은 순서로 넣는다. case study 쪽과 동일한 규칙. */
+const diagramSections: ExtraSection[] =
+	slug === 'dongle' ? [{ id: 'structure-diagram', title: '서비스 구조' }] : [];
 ---
 
 <Layout title={`${data.title} — ${site.name}`} description={isUnconfirmed(data.summary) ? undefined : data.summary}>
@@ -92,7 +98,7 @@ const relatedLinks = linkItemsFromRecord(remainingLinks);
 			<MetaList items={meta} />
 			{
 				!isUnconfirmed(data.summary) && (
-					<p class="m-0 text-base leading-relaxed">{data.summary}</p>
+					<p class="m-0 max-w-prose text-base leading-relaxed">{data.summary}</p>
 				)
 			}
 			{
@@ -118,7 +124,11 @@ const relatedLinks = linkItemsFromRecord(remainingLinks);
 		</div>
 	</DetailSection>
 
-	<TableOfContents headings={headings} />
+	<TableOfContents headings={headings} extra={diagramSections} />
+
+	<ArticleBody class="mt-16 sm:mt-20">
+		<Content />
+	</ArticleBody>
 
 	{
 		slug === 'dongle' && (
@@ -127,10 +137,6 @@ const relatedLinks = linkItemsFromRecord(remainingLinks);
 			</DetailSection>
 		)
 	}
-
-	<ArticleBody class="mt-16 sm:mt-20">
-		<Content />
-	</ArticleBody>
 
 	<PrevNextNav prev={prev} next={next} />
 
