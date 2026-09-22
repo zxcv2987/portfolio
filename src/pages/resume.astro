@@ -175,37 +175,39 @@ const detailPath = (slug: string, type: 'case-studies' | 'projects') =>
 					<h2 id="projects-heading">주요 프로젝트</h2>
 					{dongle.data.period && <p>{dongle.data.period}</p>}
 				</div>
-				<article class="case-item">
-					<div class="case-heading">
-						<div>
-							<h3><a href={detailPath(dongle.data.slug, 'projects')}>{resumeNarratives.dongle.label}</a></h3>
-							<p>{dongle.data.role} · {dongle.data.category}</p>
+				<div class="case-list">
+					<article class="case-item">
+						<div class="case-heading">
+							<div>
+								<h3><a href={detailPath(dongle.data.slug, 'projects')}>{resumeNarratives.dongle.label}</a></h3>
+								<p>{dongle.data.role} · {dongle.data.category}</p>
+							</div>
+							<a class="detail-link" href={detailPath(dongle.data.slug, 'projects')}>
+								상세 프로젝트 보기<span class="print-url">/projects/{dongle.data.slug}</span>
+							</a>
 						</div>
-						<a class="detail-link" href={detailPath(dongle.data.slug, 'projects')}>
-							상세 프로젝트 보기<span class="print-url">/projects/{dongle.data.slug}</span>
-						</a>
-					</div>
-					<ul>
-						{resumeNarratives.dongle.bullets.map((bullet) => <li>{bullet}</li>)}
-					</ul>
-					<p class="stack-row"><strong>기술</strong> {dongleResumeTech.join(' · ')}</p>
-					{
-						(!isUnconfirmed(dongleLinks.service) || !isUnconfirmed(dongleLinks.frontend)) && (
-							<p class="project-links">
-								{!isUnconfirmed(dongleLinks.service) && (
-								<a class="print-hidden" href={dongleLinks.service} rel="noopener noreferrer" target="_blank">
-									서비스 <span class="print-url">{dongleLinks.service}</span>
-								</a>
-								)}
-								{!isUnconfirmed(dongleLinks.frontend) && (
-								<a href={dongleLinks.frontend} rel="noopener noreferrer" target="_blank">
-									GitHub 저장소
-								</a>
-								)}
-							</p>
-						)
-					}
-				</article>
+						<ul>
+							{resumeNarratives.dongle.bullets.map((bullet) => <li>{bullet}</li>)}
+						</ul>
+						<p class="stack-row"><strong>기술</strong> {dongleResumeTech.join(' · ')}</p>
+						{
+							(!isUnconfirmed(dongleLinks.service) || !isUnconfirmed(dongleLinks.frontend)) && (
+								<p class="project-links">
+									{!isUnconfirmed(dongleLinks.service) && (
+									<a class="print-hidden" href={dongleLinks.service} rel="noopener noreferrer" target="_blank">
+										서비스 <span class="print-url">{dongleLinks.service}</span>
+									</a>
+									)}
+									{!isUnconfirmed(dongleLinks.frontend) && (
+									<a href={dongleLinks.frontend} rel="noopener noreferrer" target="_blank">
+										GitHub 저장소
+									</a>
+									)}
+								</p>
+							)
+						}
+					</article>
+				</div>
 			</section>
 
 			<section class="resume-section resume-skills" aria-labelledby="skills-heading">
