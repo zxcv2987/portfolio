@@ -2,7 +2,7 @@
 name: "강태양"
 english_name: "Taeyang Kang"
 role: "Frontend Engineer"
-headline: "사용자 문제를 이해하고 더 나은 제품 경험을 만들어가는 프론트엔드 엔지니어"
+headline: "요구사항 정의부터 구현까지, 사용자 문제를 제품 경험으로 구체화하는 프론트엔드 엔지니어"
 email: "z62314386@gmail.com"
 phone: "010-6231-4386"
 github: "https://github.com/zxcv2987"
