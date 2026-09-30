@@ -10,7 +10,10 @@ const entries = (await getCollection('projects')).sort(
 );
 ---
 
-<Layout title={`Projects — ${site.name}`}>
+<Layout
+	title={`Projects — ${site.name}`}
+	description={`${site.name} ${site.role}의 프로젝트 모음입니다. 팀 프로젝트와 개인 프로젝트에서 맡은 역할과 기술 선택을 확인할 수 있습니다.`}
+>
 	<header>
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Projects</h1>
 		<p class="mt-3 text-sm text-muted">

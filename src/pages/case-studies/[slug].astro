@@ -91,7 +91,11 @@ const diagramSections: ExtraSection[] =
 				: [];
 ---
 
-<Layout title={`${data.title} — ${site.name}`} description={isUnconfirmed(data.summary) ? undefined : data.summary}>
+<Layout
+	title={`${data.title} — ${site.name}`}
+	description={isUnconfirmed(data.summary) ? undefined : data.summary}
+	ogType="article"
+>
 	<header>
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
 			{data.title}

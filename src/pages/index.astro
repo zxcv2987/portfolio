@@ -11,6 +11,35 @@ import { isLiveService, linkItemsFromRecord } from '../lib/detail';
 
 const isUnconfirmed = (value?: string) => !value || value.includes('TODO');
 
+const homeUrl = new URL('/', Astro.site ?? Astro.url).toString();
+const homeDescription = `${site.name}(${site.nameEn}) ${site.role} 포트폴리오입니다. ${site.headline}. 대표 사례, 프로젝트, 경력과 기술을 한 페이지에서 확인할 수 있습니다.`;
+
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@graph': [
+		{
+			'@type': 'Person',
+			'@id': `${homeUrl}#person`,
+			name: site.name,
+			alternateName: site.nameEn,
+			jobTitle: site.role,
+			description: site.headline,
+			url: homeUrl,
+			email: `mailto:${site.email}`,
+			sameAs: [site.github],
+		},
+		{
+			'@type': 'WebSite',
+			'@id': `${homeUrl}#website`,
+			name: `${site.name} — ${site.role}`,
+			url: homeUrl,
+			inLanguage: 'ko-KR',
+			description: homeDescription,
+			author: { '@id': `${homeUrl}#person` },
+		},
+	],
+};
+
 const profile = getProfile();
 
 const skillGroups = getSkillGroups(profile);
@@ -36,7 +65,11 @@ const otherProjects = projectEntries.filter(
 );
 ---
 
-<Layout title={`${site.nameEn} — ${site.role}`}>
+<Layout
+	title={`${site.nameEn} — ${site.role}`}
+	description={homeDescription}
+	structuredData={structuredData}
+>
 	<section aria-labelledby="intro-heading">
 		<p class="text-sm font-medium text-muted">{site.role}</p>
 		<h1

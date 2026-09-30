@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Analytics from '@vercel/analytics/astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { site } from '../config/site';
@@ -7,12 +8,33 @@ import { site } from '../config/site';
 interface Props {
 	title: string;
 	description?: string;
+	/** 페이지 성격: 홈·목록은 website, 상세 콘텐츠는 article, 이력서는 profile. */
+	ogType?: 'website' | 'article' | 'profile';
+	/** 루트 기준 상대 경로. 도메인이 바뀌어도 canonical/og가 함께 따라간다. */
+	ogImage?: string;
+	ogImageAlt?: string;
+	structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
 	title,
 	description = `${site.name} (${site.role}) 포트폴리오 — ${site.headline}`,
+	ogType = 'website',
+	ogImage = site.ogImage,
+	ogImageAlt = `${site.name} (${site.role}) 포트폴리오 대표 이미지`,
+	structuredData,
 } = Astro.props;
+
+// Astro.site는 astro.config의 site 값이다. 도메인을 코드에 박지 않고 여기서만
+// 절대 URL을 만든다. 사이트 주소가 바뀌면 설정 한 곳만 고치면 된다.
+const siteUrl = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(Astro.url.pathname, siteUrl).toString();
+const ogImageUrl = new URL(ogImage, siteUrl).toString();
+const structuredDataList = !structuredData
+	? []
+	: Array.isArray(structuredData)
+		? structuredData
+		: [structuredData];
 ---
 
 <!doctype html>
@@ -20,7 +42,11 @@ const {
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="canonical" href={canonical} />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<meta name="theme-color" content="#fafaf9" />
 		<meta name="generator" content={Astro.generator} />
 		<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 		<link
@@ -28,10 +54,34 @@ const {
 			href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
 		/>
 		<meta name="description" content={description} />
-		<meta property="og:type" content="website" />
+		<meta property="og:type" content={ogType} />
+		<meta property="og:site_name" content={`${site.name} — ${site.role}`} />
+		<meta property="og:locale" content={site.locale} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:image" content={ogImageUrl} />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={ogImageAlt} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImageUrl} />
+		<meta name="twitter:image:alt" content={ogImageAlt} />
 		<title>{title}</title>
+		{
+			structuredDataList.map((data) => (
+				<script
+					type="application/ld+json"
+					is:inline
+					set:html={JSON.stringify(data)}
+				/>
+			))
+		}
+		<!-- Vercel Web Analytics. Vercel 대시보드에서 Enable 후 재배포해야 수집된다. -->
+		<Analytics />
 	</head>
 	<body class="flex min-h-dvh flex-col">
 		<a

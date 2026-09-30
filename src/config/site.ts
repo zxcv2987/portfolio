@@ -12,6 +12,9 @@ export const site = {
 	email: 'z62314386@gmail.com',
 	github: 'https://github.com/zxcv2987',
 	resumePath: '/resume',
+	locale: 'ko_KR',
+	/** 공유 카드 대표 이미지. 루트 기준 상대 경로로 두어 도메인을 하드코딩하지 않는다. */
+	ogImage: '/og/og-default.png',
 } as const;
 
 export const navItems: NavItem[] = [

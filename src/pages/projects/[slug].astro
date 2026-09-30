@@ -80,7 +80,11 @@ const diagramSections: ExtraSection[] =
 	slug === 'dongle' ? [{ id: 'structure-diagram', title: '서비스 구조' }] : [];
 ---
 
-<Layout title={`${data.title} — ${site.name}`} description={isUnconfirmed(data.summary) ? undefined : data.summary}>
+<Layout
+	title={`${data.title} — ${site.name}`}
+	description={isUnconfirmed(data.summary) ? undefined : data.summary}
+	ogType="article"
+>
 	<header>
 		<p class="m-0 text-sm font-medium text-muted">Projects</p>
 		<h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">

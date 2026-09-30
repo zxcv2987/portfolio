@@ -15,7 +15,10 @@ const caseStudiesByHref = new Map(
 );
 ---
 
-<Layout title={`Experience — ${site.name}`}>
+<Layout
+	title={`Experience — ${site.name}`}
+	description={`${site.name} ${site.role}의 회사 경력입니다. 각 경력에서 담당한 문제와 그 판단을 확인할 수 있는 대표 사례를 함께 정리했습니다.`}
+>
 	<header>
 		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Experience</h1>
 		<p class="mt-3 text-sm text-muted">
